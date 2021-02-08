@@ -13,4 +13,7 @@ stop: ## Stop script
 	docker-compose stop
 
 test: ## Test the code
+	docker-compose run --rm --no-deps go go test ./src/...
+
+test-verbose: ## Test the code
 	docker-compose run --rm --no-deps go go test -v ./src/...
