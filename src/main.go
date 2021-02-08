@@ -3,13 +3,17 @@ package main
 import (
 	"io/ioutil"
     "log"
+	"os"
 	"fmt"
 	game "game"
 )
 
 func main() {
+	fileName := os.Args[1]
 
-    content, err := ioutil.ReadFile("./src/datasets/empty_board.txt")
+	fmt.Println(fileName)
+    
+	content, err := ioutil.ReadFile("./src/datasets/" + fileName)
 
 	if err != nil {
 		log.Fatal(err)
@@ -26,13 +30,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if result == game.GAME_PLAYER1_WON {
+	switch result {
+	case game.GAME_PLAYER1_WON:
 		fmt.Println("Player 1 win !")
-	} else if result == game.GAME_PLAYER2_WON {
+	case game.GAME_PLAYER2_WON:
 		fmt.Println("Player 2 win !")
-	} else if result == game.GAME_DRAW{
-		fmt.Println("It's a draw !")
-	} else {
+	case game.GAME_DRAW:
+		fmt.Println("It's a draw")
+	default:
 		fmt.Println("Game is running...")
 	}
 }

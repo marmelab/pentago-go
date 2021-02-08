@@ -12,13 +12,15 @@ func GetAllCombinations()[32]int64 {
 }
 
 func BinaryCompareInt64(combination int64, playerBoard int64) bool {
-	// bitwise and operator between the given combination and the playerBoard.
+	// bitwise AND operator between the given combination and the playerBoard.
 	// If the bitwise and operator = the combination
 	// It means that the player have at least every bits of the combination
 	// (He has played every cell on the board to win by this combination)
 	return combination & playerBoard == combination
 }
 
-func IsBoardFull(board int64) bool {
-	return BinaryCompareInt64(FULL_BOARD, board)
+func IsBoardFull(player1Int64 int64, player2Int64 int64) bool {
+	// We use bitwise OR operator to combine both player1 & player2 and compare it to
+	// The representation of a full board.
+	return FULL_BOARD == (player1Int64 | player2Int64)
 }
