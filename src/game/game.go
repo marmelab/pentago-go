@@ -15,11 +15,14 @@ func DeserializeBoard(str string) ([][]int, error) {
 	if len(strArr) != 9 {
 		return nil, errors.New("Given string is not correctly formatted and have to contain 9 lines.")
 	}
-	strArr = append(strArr[1:4], strArr[5:8]...)
+	
+
+	arrayWithoutBorders := append(make([]string, 0, 6), strArr[1:4]...)
+	arrayWithoutBorders = append(arrayWithoutBorders, strArr[5:8]...)
 
 	re := regexp.MustCompile("[0-9]+")
 
-	for _, line := range strArr {
+	for _, line := range arrayWithoutBorders {
 		// Remove all non-digits chars
 		lineStrings := re.FindAllString(line, -1)
 
