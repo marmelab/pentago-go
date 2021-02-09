@@ -2,6 +2,7 @@ package ai
 
 import (
     "testing"
+	game "game"
 )
 
 func TestPlayAllPossibleMovesWin(t *testing.T) {
@@ -15,7 +16,7 @@ func TestPlayAllPossibleMovesWin(t *testing.T) {
 				|0|0|0||0|0|0|
 				└────────────┘`
 
-	board, _ := DeserializeBoard(rawBoard)
+	board, _ := game.DeserializeBoard(rawBoard)
 	
 	var results Results
 	var expected_results Results
@@ -55,7 +56,7 @@ func TestPlayAllPossibleMovesLoose(t *testing.T) {
 				|0|0|0||0|0|0|
 				└────────────┘`
 
-	board, _ := DeserializeBoard(rawBoard)
+	board, _ := game.DeserializeBoard(rawBoard)
 	
 	var results Results
 	expected_result := Result{

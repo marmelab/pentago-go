@@ -3,6 +3,7 @@ package ai
 import (
     "testing"
 	"fmt"
+	game "game"
 )
 
 var detectWinnerDatasets = []struct {
@@ -83,8 +84,8 @@ var detectWinnerDatasets = []struct {
 
 func TestDetectWinner(t *testing.T) {
 	for _, data := range detectWinnerDatasets {
-		board, err := DeserializeBoard(data.in)
-		boardStringified := ToStringBoard(board)
+		board, err := game.DeserializeBoard(data.in)
+		boardStringified := game.ToStringBoard(board)
 		if err != nil {
 			t.Errorf("Error thrown during deserialization")
 		}
