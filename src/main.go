@@ -7,16 +7,9 @@ import (
 	fileReader "fileReader"
 	ai "ai"
 	"time"
-	"math/bits"
 )
 
 func main() {
-	number1 := 0b10000100000100000100000100000000000
-	number2 := 0b10000110000100000100000100000000000
-
-	numberResult := bits.OnesCount64(uint64(number1 & number2))
-	fmt.Println("OK", numberResult)
-
 	content, err := fileReader.GetFileContent()
 
 	if err != nil {
