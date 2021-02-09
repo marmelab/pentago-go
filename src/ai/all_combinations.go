@@ -40,6 +40,10 @@ func GetAllCombinations()[32]int64 {
 	return ALL_COMBINATIONS_OF_WIN
 }
 
+func GetAllCombinationsMinusMask(mask int64) {
+	for _, combination := ALL_COMBINATIONS_OF_WIN
+}
+
 func BinaryCompareInt64(combination int64, playerBoard int64) bool {
 	// bitwise AND operator between the given combination and the playerBoard.
 	// If the bitwise and operator = the combination
