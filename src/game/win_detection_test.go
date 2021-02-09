@@ -84,12 +84,12 @@ var detectWinnerDatasets = []struct {
 func TestDetectWinner(t *testing.T) {
 	for _, data := range detectWinnerDatasets {
 		board, err := DeserializeBoard(data.in)
-
+		boardStringified := ToStringBoard(board)
 		if err != nil {
 			t.Errorf("Error thrown during deserialization")
 		}
 
-		result, err := DetectWinner(board)
+		result, err := DetectWinner(boardStringified)
 
 		if err != nil {
 			t.Errorf("Error thrown during winner detection")
