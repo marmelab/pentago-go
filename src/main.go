@@ -5,9 +5,12 @@ import (
 	"fmt"
 	game "game"
 	fileReader "fileReader"
+	ai "ai"
+	"time"
 )
 
 func main() {
+
 	content, err := fileReader.GetFileContent()
 
 	if err != nil {
@@ -19,7 +22,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	results := game.PlayAllPossibleMoves(board)
+	start := time.Now()
+
+	results := ai.PlayAllPossibleMoves(board)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -45,4 +50,8 @@ func main() {
 			result.Rotate[1],
 		)
 	}
+
+	elapsed := time.Since(start)
+
+	fmt.Printf("Found in %v\n\n", elapsed)
 }

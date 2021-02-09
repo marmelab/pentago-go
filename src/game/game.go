@@ -7,7 +7,7 @@ import (
 )
 
 type Board struct {
-	quadrants [4][3][3]string
+	Quadrants [4][3][3]string
 }
 
 const ROTATE_CLOCKWISE = "clockwise"
@@ -43,13 +43,13 @@ func DeserializeBoard(str string) (Board, error) {
 		for y, value := range lineStrings {
 			switch true {
 			case x < 3 && y < 3:
-				board.quadrants[0][x][y] = value
+				board.Quadrants[0][x][y] = value
 			case x < 3 && y >= 2:
-				board.quadrants[1][x][y - 3] = value
+				board.Quadrants[1][x][y - 3] = value
 			case x >= 3 && y < 3:
-				board.quadrants[2][x - 3][y] = value
+				board.Quadrants[2][x - 3][y] = value
 			case x >= 3 && y >= 3:
-				board.quadrants[3][x - 3][y - 3] = value
+				board.Quadrants[3][x - 3][y - 3] = value
 			}
 		
 		}
@@ -67,8 +67,8 @@ func GetLineOfBoard(board Board, line int) string {
 	if line >= 3 {
 		quadrantNumber = 2
 	}
-	return strings.Join(board.quadrants[quadrantNumber][quadrantsLine][:], "") + 
-		strings.Join(board.quadrants[quadrantNumber + 1][quadrantsLine][:], "")
+	return strings.Join(board.Quadrants[quadrantNumber][quadrantsLine][:], "") + 
+		strings.Join(board.Quadrants[quadrantNumber + 1][quadrantsLine][:], "")
 }
 
 func ToStringBoard(board Board) string {

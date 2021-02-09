@@ -16,9 +16,9 @@ func TestDeserializeBoardShouldReturnBoard(t *testing.T) {
 				└────────────┘`
 
     board, err := DeserializeBoard(rawBoard)
-	numberOfQuadrants := len(board.quadrants)
-	numberOfRows := len(board.quadrants[0])
-	numberOfColumns := len(board.quadrants[0][0])
+	numberOfQuadrants := len(board.Quadrants)
+	numberOfRows := len(board.Quadrants[0])
+	numberOfColumns := len(board.Quadrants[0][0])
 	if numberOfQuadrants != 4 || numberOfRows != 3 || numberOfColumns != 3 || err != nil {
 		t.Errorf("The board's size are %d*%d*%d 3 d array (4*3*3 expected)", numberOfQuadrants, numberOfRows, numberOfColumns)
 	}
@@ -161,7 +161,7 @@ func TestTranspose(t *testing.T) {
 				└────────────┘`
 
 	board, _ := DeserializeBoard(rawBoard)
-	result := Transpose(board.quadrants[1])
+	result := Transpose(board.Quadrants[1])
 	expected_result := [3][3]string{{"0", "1", "0"}, {"2", "0", "2"}, {"1", "1", "0"}}
 	if result != expected_result {
 		t.Errorf("Transpose returned %v, expected %v", result, expected_result)
@@ -181,7 +181,7 @@ func TestReverse(t *testing.T) {
 				└────────────┘`
 
 	board, _ := DeserializeBoard(rawBoard)
-	result := Reverse(board.quadrants[1])
+	result := Reverse(board.Quadrants[1])
 	expected_result := [3][3]string{{"1", "2", "0"}, {"1", "0", "1"}, {"0", "2", "0"}}
 	if result != expected_result {
 		t.Errorf("Reverse returned %v, expected %v", result, expected_result)
@@ -200,7 +200,7 @@ func TestRotateClockwise(t *testing.T) {
 				└────────────┘`
 
 	board, _ := DeserializeBoard(rawBoard)
-	result := Rotate(board.quadrants[1], "clockwise")
+	result := Rotate(board.Quadrants[1], "clockwise")
 	expected_result := [3][3]string{{"0", "1", "0"}, {"2", "0", "2"}, {"0", "1", "1"}}
 	if result != expected_result {
 		t.Errorf("Reverse returned %v, expected %v", result, expected_result)
@@ -219,7 +219,7 @@ func TestRotateCounterClockwise(t *testing.T) {
 				└────────────┘`
 
 	board, _ := DeserializeBoard(rawBoard)
-	result := Rotate(board.quadrants[1], "counter clockwise")
+	result := Rotate(board.Quadrants[1], "counter clockwise")
 	expected_result := [3][3]string{{"1", "1", "0"}, {"2", "0", "2"}, {"0", "1", "0"}}
 	if result != expected_result {
 		t.Errorf("Reverse returned %v, expected %v", result, expected_result)

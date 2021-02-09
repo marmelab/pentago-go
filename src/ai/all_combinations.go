@@ -1,4 +1,4 @@
-package game
+package ai
 
 var ALL_COMBINATIONS_OF_WIN = [32]int64{
 	0b100000_100000_100000_100000_100000_000000,
