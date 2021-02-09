@@ -37,7 +37,7 @@ func GetPlayerBoardsFromBoard(board[][]int) (int64, int64, error) {
 	// Convert this string into int64.
 	player1Int64, err := strconv.ParseInt(player1BoardString, 2, 64)
 	if err != nil {
-		return 0, 0, errors.New("Could'nt parse correctly player 1 board")
+		return 0, 0, errors.New("Cannot parse correctly player 1 board")
 	}
 
 	player2Int64, err := strconv.ParseInt(player2BoardString, 2, 64)
@@ -93,4 +93,3 @@ func DetectWinner(board[][]int) (string, error) {
 
 	return gameResult, nil
 }
-
