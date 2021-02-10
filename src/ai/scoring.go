@@ -85,35 +85,50 @@ func DetectWinner(player1Int64 int64, player2Int64 int64) (string, error) {
 	return gameResult, nil
 }
 
-func Score(board string) (int, error) {
-	// Should detect if someone win, if not possible calculate a score for a move.
+func EvaluateGameStatus(player1Int64 int64, player2Int64 int64, currentPlayer string) (string, int, error) {
 
-	// Get player1 and player2 binaries representation of their marbles
-	player1Int64, player2Int64, err := GetPlayerBoardsFromBoard(board)
-
-	score := 0
 	winStatus, err := DetectWinner(player1Int64, player2Int64)
-
 	if err != nil {
-		return score, err
+		return "", 0, err
+	}
+	switch true {
+	case winStatus == GAME_DRAW:
+		return GAME_DRAW, 0, nil
+	case winStatus == GAME_PLAYER1_WON && currentPlayer == "1" || winStatus == GAME_PLAYER2_WON && currentPlayer == "2":
+		return GAME_PLAYER1_WON, SCORE_ALIGNED[4], nil
+	case winStatus == GAME_PLAYER2_WON && currentPlayer == "1" || winStatus == GAME_PLAYER1_WON && currentPlayer == "2":
+		return GAME_PLAYER2_WON, -SCORE_ALIGNED[4], nil
 	}
 
-	switch winStatus {
-	case GAME_DRAW:
-		return 0, nil
-	case GAME_PLAYER1_WON:
-		return SCORE_ALIGNED[4], nil
-	case GAME_PLAYER2_WON:
-		return -SCORE_ALIGNED[4], nil
+	return GAME_RUNNING, 0, nil
+}
+
+func EvaluateScore(player1Int64 int64, player2Int64 int64, currentPlayer string) (int, error) {
+
+	score := 0
+
+	var playerInt64, opponentInt64 int64
+
+	if currentPlayer == "1" {
+		playerInt64 = player1Int64
+		opponentInt64 = player2Int64
+	} else {
+		playerInt64 = player2Int64
+		opponentInt64 = player1Int64
 	}
 
 	// Get all combinations and use binary comparaison.
 	for _, combination := range GetAllCombinations() {
-		marblesAligned := CountBitsForCombinationIfStillPossible(combination, player1Int64, player2Int64)
+		marblesAligned := CountBitsForCombinationIfStillPossible(combination, playerInt64, opponentInt64)
 		
 		// 0 means no marbles are in this combinaton or opponent already countered this combination.
 		if marblesAligned != 0 {
 			score = score + SCORE_ALIGNED[marblesAligned - 1]
+		}
+
+		marblesAligned = CountBitsForCombinationIfStillPossible(combination, opponentInt64, playerInt64)
+		if marblesAligned != 0 {
+			score = score - SCORE_ALIGNED[marblesAligned - 1]
 		}
 	}
 

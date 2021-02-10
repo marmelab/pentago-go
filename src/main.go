@@ -8,10 +8,11 @@ import (
 	ai "ai"
 	"time"
 	"strings"
-	"sort"
+	// "sort"
 )
 
 const MAX_RESULTS = 10
+const DEPTH = 2
 
 func PrintBoard(board string) {
 	fmt.Println("   0 1 2  3 4 5")
@@ -50,26 +51,14 @@ func main() {
 
 	start := time.Now()
 
-	results := ai.PlayAllPossibleMoves(board)
+	var startMove ai.Move
+	score, move := ai.Minimax(DEPTH, board, "1", startMove)
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	sort.Slice(
-		results,
-		func(i, j int) bool { return results[i].Score > results[j].Score },
-	)
-
-	for _, result := range(results[:MAX_RESULTS]) {
-		fmt.Printf(
-			"=> %d : Place a marble in %d %d and rotate quadrant %v in %v \n",
-			result.Score,
-			result.PlaceMarble[0],
-			result.PlaceMarble[1],
-			result.Rotate[0],
-			result.Rotate[1],
-		)
-	}
+	fmt.Println(score, move)
 
 	elapsed := time.Since(start)
 

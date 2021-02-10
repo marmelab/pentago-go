@@ -82,24 +82,24 @@ var detectWinnerDatasets = []struct {
 	└────────────┘`, "GAME_DRAW"},
 }
 
-func TestDetectWinner(t *testing.T) {
+func TestEvaluateGameStatus(t *testing.T) {
 	for _, data := range detectWinnerDatasets {
 		board, err := game.DeserializeBoard(data.in)
 		boardStringified := game.ToStringBoard(board)
-		player1int64, player2int64, _ := GetPlayerBoardsFromBoard(boardStringified)
+		player1Int64, player2Int64, _ := GetPlayerBoardsFromBoard(boardStringified)
 
 		if err != nil {
 			t.Errorf("Error thrown during deserialization")
 		}
 
-		result, err := DetectWinner(player1int64, player2int64)
+		result, _, err := EvaluateGameStatus(player1Int64, player2Int64, "1")
 
 		if err != nil {
 			t.Errorf("Error thrown during winner detection")
 		}
 		if result != data.out {
 			fmt.Println(data.in)
-			t.Errorf("Error : got %v, want %v", result, data.out)
+			t.Errorf("Error EvaluteGameStatus: got %v, want %v", result, data.out)
 		}
 	}
 }
@@ -107,28 +107,39 @@ func TestDetectWinner(t *testing.T) {
 
 var scoreDatasets = []struct {
 	in  string
+	currentPlayer string
 	out int
 }{
 	{`
 	┌────────────┐
 	|0|0|0||0|0|0|
 	|0|2|0||0|0|0|
-	|0|2|0||0|0|0|
+	|0|0|0||0|0|0|
 	|────────────|
 	|0|2|0||0|0|0|
 	|0|2|0||0|0|0|
 	|1|2|0||1|1|0|
-	└────────────┘`, -10000},
+	└────────────┘`, "1", -1107},
+	{`
+	┌────────────┐
+	|0|0|0||0|0|0|
+	|0|2|0||0|0|0|
+	|0|2|0||0|0|0|
+	|────────────|
+	|0|0|0||0|0|0|
+	|0|2|0||0|0|0|
+	|1|2|0||1|1|0|
+	└────────────┘`, "2", -1107},
 	{`
 	┌────────────┐
 	|0|0|0||0|0|0|
 	|0|0|0||0|1|0|
 	|0|1|0||1|0|0|
 	|────────────|
-	|0|1|1||0|0|0|
+	|0|1|2||0|0|0|
 	|0|1|0||0|0|0|
 	|1|1|0||1|1|0|
-	└────────────┘`, 10000},
+	└────────────┘`, "1", 2250},
 	{`
 	┌────────────┐
 	|0|2|2||1|2|2|
@@ -138,7 +149,7 @@ var scoreDatasets = []struct {
 	|2|1|1||2|2|2|
 	|1|2|2||1|2|2|
 	|1|1|1||1|2|2|
-	└────────────┘`, 0},
+	└────────────┘`, "1", 0},
 	{`
 	┌────────────┐
 	|1|2|2||1|2|2|
@@ -148,7 +159,7 @@ var scoreDatasets = []struct {
 	|2|1|1||2|2|2|
 	|1|2|2||1|2|2|
 	|1|1|1||1|2|2|
-	└────────────┘`, 0},
+	└────────────┘`, "1", 0},
 	{`
 	┌────────────┐
 	|0|0|0||0|0|0|
@@ -158,7 +169,7 @@ var scoreDatasets = []struct {
 	|0|0|0||0|0|0|
 	|0|0|0||2|1|0|
 	|1|0|0||1|1|0|
-	└────────────┘`, 236},
+	└────────────┘`, "1", 236},
 	{`
 	┌────────────┐
 	|0|0|0||0|0|0|
@@ -168,15 +179,18 @@ var scoreDatasets = []struct {
 	|0|0|0||0|0|0|
 	|0|0|0||2|1|0|
 	|1|0|2||1|1|0|
-	└────────────┘`, 126},
+	└────────────┘`, "1", 126},
 }
-func TestScore(t *testing.T) {
+func TestEvaluateScore(t *testing.T) {
 	for _, data := range scoreDatasets {
 		board, _ := game.DeserializeBoard(data.in)
 		boardStr := game.ToStringBoard(board)
-		result, _ := Score(boardStr)
+
+		player1Int64, player2Int64, _ := GetPlayerBoardsFromBoard(boardStr)
+
+		result, _ := EvaluateScore(player1Int64, player2Int64, data.currentPlayer)
 		if (result != data.out) {
-			t.Errorf("Error Score : returned %d, expected %d", result, data.out)
+			t.Errorf("Error EvaluateScore : returned %d, expected %d", result, data.out)
 		}
 	}
 }
