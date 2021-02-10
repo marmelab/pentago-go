@@ -86,11 +86,13 @@ func TestDetectWinner(t *testing.T) {
 	for _, data := range detectWinnerDatasets {
 		board, err := game.DeserializeBoard(data.in)
 		boardStringified := game.ToStringBoard(board)
+		player1int64, player2int64, _ := GetPlayerBoardsFromBoard(boardStringified)
+
 		if err != nil {
 			t.Errorf("Error thrown during deserialization")
 		}
 
-		result, err := DetectWinner(boardStringified)
+		result, err := DetectWinner(player1int64, player2int64)
 
 		if err != nil {
 			t.Errorf("Error thrown during winner detection")
@@ -98,6 +100,83 @@ func TestDetectWinner(t *testing.T) {
 		if result != data.out {
 			fmt.Println(data.in)
 			t.Errorf("Error : got %v, want %v", result, data.out)
+		}
+	}
+}
+
+
+var scoreDatasets = []struct {
+	in  string
+	out int
+}{
+	{`
+	┌────────────┐
+	|0|0|0||0|0|0|
+	|0|2|0||0|0|0|
+	|0|2|0||0|0|0|
+	|────────────|
+	|0|2|0||0|0|0|
+	|0|2|0||0|0|0|
+	|1|2|0||1|1|0|
+	└────────────┘`, -10000},
+	{`
+	┌────────────┐
+	|0|0|0||0|0|0|
+	|0|0|0||0|1|0|
+	|0|1|0||1|0|0|
+	|────────────|
+	|0|1|1||0|0|0|
+	|0|1|0||0|0|0|
+	|1|1|0||1|1|0|
+	└────────────┘`, 10000},
+	{`
+	┌────────────┐
+	|0|2|2||1|2|2|
+	|1|1|2||2|1|1|
+	|1|1|2||1|1|1|
+	|────────────|
+	|2|1|1||2|2|2|
+	|1|2|2||1|2|2|
+	|1|1|1||1|2|2|
+	└────────────┘`, 0},
+	{`
+	┌────────────┐
+	|1|2|2||1|2|2|
+	|1|1|2||2|1|1|
+	|1|1|2||1|1|1|
+	|────────────|
+	|2|1|1||2|2|2|
+	|1|2|2||1|2|2|
+	|1|1|1||1|2|2|
+	└────────────┘`, 0},
+	{`
+	┌────────────┐
+	|0|0|0||0|0|0|
+	|0|0|0||0|1|0|
+	|0|0|0||0|0|0|
+	|────────────|
+	|0|0|0||0|0|0|
+	|0|0|0||2|1|0|
+	|1|0|0||1|1|0|
+	└────────────┘`, 23},
+	{`
+	┌────────────┐
+	|0|0|0||0|0|0|
+	|0|0|0||0|1|0|
+	|0|0|0||0|0|0|
+	|────────────|
+	|0|0|0||0|0|0|
+	|0|0|0||2|1|0|
+	|1|0|2||1|1|0|
+	└────────────┘`, 12},
+}
+func TestScore(t *testing.T) {
+	for _, data := range scoreDatasets {
+		board, _ := game.DeserializeBoard(data.in)
+		boardStr := game.ToStringBoard(board)
+		result, _ := Score(boardStr)
+		if (result != data.out) {
+			t.Errorf("Error Score : returned %d, expected %d", result, data.out)
 		}
 	}
 }
