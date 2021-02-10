@@ -38,7 +38,6 @@ func DeserializeBoard(str string) (Board, error) {
 		}
 
 		// This loop allow us to cast all digits into integers
-		// var lineInt = make([]int, 0, len(lineStrings))
 
 		for y, value := range lineStrings {
 			switch true {
