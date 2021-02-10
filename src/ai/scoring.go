@@ -11,7 +11,7 @@ const GAME_DRAW = "GAME_DRAW"
 const GAME_PLAYER1_WON = "GAME_PLAYER1_WON"
 const GAME_PLAYER2_WON = "GAME_PLAYER2_WON"
 
-var SCORE_ALIGNED = [5]int{0, 1, 10, 100, 10000}
+var SCORE_ALIGNED = [5]int{1, 10, 100, 1000, 10000}
 
 func GetPlayerBoardsFromBoard(board string) (int64, int64, error) {
 
