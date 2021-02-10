@@ -11,6 +11,8 @@ import (
 	"sort"
 )
 
+const MAX_RESULTS = 10
+
 func PrintBoard(board string) {
 	fmt.Println("   0 1 2  3 4 5")
 	boardSplitted := strings.Split(board, "\n")
@@ -58,7 +60,7 @@ func main() {
 		func(i, j int) bool { return results[i].Score > results[j].Score },
 	)
 
-	for _, result := range(results[:10]) {
+	for _, result := range(results[:MAX_RESULTS]) {
 		fmt.Printf(
 			"=> %d : Place a marble in %d %d and rotate quadrant %v in %v \n",
 			result.Score,
