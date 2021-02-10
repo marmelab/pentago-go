@@ -22,6 +22,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	fmt.Println(string(content))
+
 	start := time.Now()
 
 	results := ai.PlayAllPossibleMoves(board)
