@@ -1,43 +1,59 @@
 package main
 
 import (
-	"io/ioutil"
     "log"
-	"os"
 	"fmt"
 	game "game"
+	fileReader "fileReader"
+	ai "ai"
+	"time"
 )
 
 func main() {
-	fileName := os.Args[1]
 
-	fmt.Println(fileName)
-    
-	content, err := ioutil.ReadFile("./src/datasets/" + fileName)
+	content, err := fileReader.GetFileContent()
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(string(content))
 	board, err := game.DeserializeBoard(string(content))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	result, err := game.DetectWinner(board)
+	fmt.Println(string(content))
+
+	start := time.Now()
+
+	results := ai.PlayAllPossibleMoves(board)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	switch result {
-	case game.GAME_PLAYER1_WON:
-		fmt.Println("Player 1 win !")
-	case game.GAME_PLAYER2_WON:
-		fmt.Println("Player 2 win !")
-	case game.GAME_DRAW:
-		fmt.Println("It's a draw")
-	default:
-		fmt.Println("Game is running...")
+	fmt.Println("You win if you :")
+	for _, result := range(results.Win) {
+		fmt.Printf(
+			"Place a marble in %d %d and rotate quadrant %v in %v \n",
+			result.PlaceMarble[0],
+			result.PlaceMarble[1],
+			result.Rotate[0],
+			result.Rotate[1],
+		)
 	}
+
+	fmt.Println("\nYou loose if you :")
+	for _, result := range(results.Loose) {
+		fmt.Printf(
+			"Place a marble in %d %d and rotate quadrant %v in %v \n",
+			result.PlaceMarble[0],
+			result.PlaceMarble[1],
+			result.Rotate[0],
+			result.Rotate[1],
+		)
+	}
+
+	elapsed := time.Since(start)
+
+	fmt.Printf("Found in %v\n\n", elapsed)
 }
