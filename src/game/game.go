@@ -55,7 +55,6 @@ func DeserializeBoard(str string) (Board, error) {
 
 	}
 
-	// Return our Board object
 	return board, nil
 }
 
