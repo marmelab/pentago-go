@@ -4,14 +4,13 @@ import (
 	"strings"
 	"regexp"
 	"errors"
+	"constants"
 )
 
 type Board struct {
 	Quadrants [4][3][3]string
 }
 
-const ROTATE_CLOCKWISE = "clockwise"
-const ROTATE_COUNTER_CLOCKWISE = "counter clockwise"
 
 func DeserializeBoard(str string) (Board, error) {
 	var board Board
@@ -96,7 +95,7 @@ func ConvertQuadrantPositionIntoBoardPosition(position [3]int) ([2]int, error) {
 	}
 
 	// If other case, throw an error
-	return [2]int{position[1], position[2]}, errors.New("Quadrant doesn't exist")
+	return [2]int{0, 0}, errors.New("Quadrant doesn't exist")
 }
 
 func Transpose(slice [3][3]string) [3][3]string {
@@ -121,8 +120,9 @@ func Reverse(quadrant [3][3]string) [3][3]string {
 }
 
 func Rotate(quadrant [3][3]string, direction string) [3][3] string {
-	if direction == ROTATE_CLOCKWISE {
+	if direction == constants.ROTATE_CLOCKWISE {
 		return Reverse(Transpose(quadrant))
 	}
 	return Transpose(Reverse(quadrant))
 }
+
