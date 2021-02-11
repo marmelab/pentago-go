@@ -13,9 +13,10 @@ type Results struct {
 type Result struct {
 	PlaceMarble [2]int
 	Rotate [2]string
+	Score int
 }
 
-func GetResultForHit(board game.Board, quadrantIndex int, rotateKey string, position [3]int) (Result, string, error) {
+func GetResultForHit(board game.Board, quadrantIndex int, rotateKey string, position [3]int) (Result, error) {
 	// For a given position and a given quadrant rotation
 	// Check if player1 win or loose
 
@@ -27,31 +28,27 @@ func GetResultForHit(board game.Board, quadrantIndex int, rotateKey string, posi
 	boardStringified := game.ToStringBoard(board);
 
 	// Detect winner
-	status, err := DetectWinner(boardStringified);
+	score, err := Score(boardStringified);
 	if err != nil {
-		return result, "", err
-	}
-
-	// If nobody won, we don't need to compute result
-	if status == GAME_DRAW || status == GAME_RUNNING {
-		return result, status, err
+		return result, err
 	}
 
 	// Compute position to be more human readable in results
 	boardRelativePositions, err := game.ConvertQuadrantPositionIntoBoardPosition(position)
 	if err != nil {
-		return result, "", err
+		return result, err
 	}
 
 	result = Result{
 		PlaceMarble: boardRelativePositions,
 		Rotate: [2]string{fmt.Sprint(quadrantIndex + 1), rotateKey},
+		Score: score,
 	}
 	
-	return result, status, err
+	return result, err
 }
 
-func PlaceMarbleAndMakeAllQuadrantRotations(board game.Board, position [3]int, results Results) (Results, error) {
+func PlaceMarbleAndMakeAllQuadrantRotations(board game.Board, position [3]int, results []Result) ([]Result, error) {
 	// After placing a marble, we need to check every rotation to finalize the turn
 	// And be able to detect an alignment.
 	// Loop again on quadrants
@@ -63,25 +60,20 @@ func PlaceMarbleAndMakeAllQuadrantRotations(board game.Board, position [3]int, r
 		for _, rotateKey := range([2]string{game.ROTATE_CLOCKWISE, game.ROTATE_COUNTER_CLOCKWISE})  {
 
 			// Get result for this hit
-			result, status, err := GetResultForHit(board, quadrantIndex, rotateKey, position)
+			result, err := GetResultForHit(board, quadrantIndex, rotateKey, position)
 			if err != nil {
 				return results, err
 			}
-			// It can be a win or a loose depending on status
-			switch status {
-			case GAME_PLAYER1_WON:
-				results.Win = append(results.Win, result)
-			case GAME_PLAYER2_WON:
-				results.Loose = append(results.Loose, result)
-			}
+			
+			results = append(results, result)
 		}
 	}
 
 	return results, nil
 }
 
-func PlayAllPossibleMoves(board game.Board) Results {
-	var results Results
+func PlayAllPossibleMoves(board game.Board) []Result {
+	var results []Result
 
 	for quadrantIndex, quadrant := range(board.Quadrants) {
 		for rowIndex, row := range(quadrant) {

@@ -1,5 +1,9 @@
 package ai
 
+import (
+	"math/bits"
+)
+
 var ALL_COMBINATIONS_OF_WIN = [32]int64{
 	0b100000_100000_100000_100000_100000_000000,
 	0b000000_100000_100000_100000_100000_100000,
@@ -47,6 +51,20 @@ func BinaryCompareInt64(combination int64, playerBoard int64) bool {
 	// (He has played every cell on the board to win by this combination)
 	return combination & playerBoard == combination
 }
+
+func CountCommonBitsBetweenTwoInt64(combination int64, playerBoard int64) int {
+	return bits.OnesCount64(uint64(combination & playerBoard))
+}
+
+func CountBitsForCombinationIfStillPossible(combination int64, player int64, opponent int64) int {
+	if CountCommonBitsBetweenTwoInt64(combination, opponent) > 0 {
+		return 0 // Opponent have at least one bit in place so this combination is impossible.
+	}
+
+	// Return number of bits in common
+	return CountCommonBitsBetweenTwoInt64(combination, player)
+}
+
 
 func IsBoardFull(player1Int64 int64, player2Int64 int64) bool {
 	// We use bitwise OR operator to combine both player1 0 player2 and compare it to

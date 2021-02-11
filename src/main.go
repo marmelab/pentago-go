@@ -7,10 +7,34 @@ import (
 	fileReader "fileReader"
 	ai "ai"
 	"time"
+	"strings"
+	"sort"
 )
 
-func main() {
+const MAX_RESULTS = 10
 
+func PrintBoard(board string) {
+	fmt.Println("   0 1 2  3 4 5")
+	boardSplitted := strings.Split(board, "\n")
+	for x, line := range boardSplitted {
+		if x == 0 || x == 4 || x > 7 {
+			fmt.Println("  " + line)
+		} else {
+			var lineNumber int
+			if x > 0 && x < 4 {
+				lineNumber = x - 1
+			} else if x > 4 {
+				lineNumber = x - 2
+			}
+	
+			fmt.Println(lineNumber, line)
+		}
+
+	}
+
+}
+
+func main() {
 	content, err := fileReader.GetFileContent()
 
 	if err != nil {
@@ -22,7 +46,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(string(content))
+	PrintBoard(content)
 
 	start := time.Now()
 
@@ -31,21 +55,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("You win if you :")
-	for _, result := range(results.Win) {
-		fmt.Printf(
-			"Place a marble in %d %d and rotate quadrant %v in %v \n",
-			result.PlaceMarble[0],
-			result.PlaceMarble[1],
-			result.Rotate[0],
-			result.Rotate[1],
-		)
-	}
+	sort.Slice(
+		results,
+		func(i, j int) bool { return results[i].Score > results[j].Score },
+	)
 
-	fmt.Println("\nYou loose if you :")
-	for _, result := range(results.Loose) {
+	for _, result := range(results[:MAX_RESULTS]) {
 		fmt.Printf(
-			"Place a marble in %d %d and rotate quadrant %v in %v \n",
+			"=> %d : Place a marble in %d %d and rotate quadrant %v in %v \n",
+			result.Score,
 			result.PlaceMarble[0],
 			result.PlaceMarble[1],
 			result.Rotate[0],
@@ -55,5 +73,5 @@ func main() {
 
 	elapsed := time.Since(start)
 
-	fmt.Printf("Found in %v\n\n", elapsed)
+	fmt.Printf("\nFound in %v\n\n", elapsed)
 }
