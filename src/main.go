@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 	"strings"
+	"sync"
 	"sort"
 	"game"
 	"fileReader"
@@ -40,6 +41,37 @@ func PrintBoard(board string) {
 
 }
 
+func StartFirstNodeMinimax(board game.Board, move ai.Move, ch chan Result, key int, wg *sync.WaitGroup) {
+	
+	defer wg.Done()
+
+	newBoard := ai.ApplyMoveOnBoard(board, move, constants.PLAYER1_VALUE)
+    // fmt.Printf("Worker %d starting\n", key)
+	score, _ := ai.Minimax(
+		constants.DEPTH - 1,
+		newBoard,
+		constants.PLAYER2_VALUE,
+		move,
+		-constants.SCORE_ALIGNED[4],
+		constants.SCORE_ALIGNED[4],
+	)
+	// fmt.Println("finished", key)
+	ch <- Result{
+		move: move,
+		score: score,
+	}
+}
+
+func EstimateBrowsedNodes(rootTreeLength int, iteration int) int {
+	result := rootTreeLength
+
+	for i := 1; i < iteration; i++ {
+		result = result * (rootTreeLength - i)
+	}
+
+	return result
+}
+
 func main() {
 	content, err := fileReader.GetFileContent()
 
@@ -54,37 +86,36 @@ func main() {
 
 	PrintBoard(content)
 
+	var wg sync.WaitGroup
 	start := time.Now()
 
 	moves := ai.GetAllPossibleMoves(board);
 	
 	var results []Result
-	for _, move := range moves {
-		newBoard := ai.ApplyMoveOnBoard(board, move, constants.PLAYER1_VALUE)
+	ch := make(chan Result)
 
-		score, _ := ai.Minimax(
-			constants.DEPTH - 1,
-			newBoard,
-			constants.PLAYER2_VALUE,
-			move,
-			-constants.SCORE_ALIGNED[4],
-			constants.SCORE_ALIGNED[4],
-		)
-
-		results = append(results, Result{
-			move: move,
-			score: score,
-		})
+	for x, move := range moves {
+		wg.Add(1)
+		go StartFirstNodeMinimax(board, move, ch, x, &wg)
 	}
 	
+	go func() {
+		for result := range ch {
+			results = append(results, result)
+        }
+	}()
+		
+	wg.Wait()
 	elapsed := time.Since(start)
-	
+
+
+	numberOfNodesToCompute := EstimateBrowsedNodes(len(results), constants.DEPTH)
+	fmt.Printf("Results analyzed : %d, Depth : %d\n", numberOfNodesToCompute, constants.DEPTH)
 	sort.Slice(
 		results,
 		func(i, j int) bool { return results[i].score > results[j].score },
 	)
 	fmt.Println("Suggested moves :")
-
 	for _, result := range(results[:constants.MAX_RESULTS]) {
 		placeMarble, _ := game.ConvertQuadrantPositionIntoBoardPosition(result.move.PlaceMarble)
 		rotate := result.move.Rotate
@@ -98,6 +129,8 @@ func main() {
 			rotate[1],
 		)
 	}
+
+	close(ch)
 
 
 	fmt.Printf("\nFound in %v\n\n", elapsed)
