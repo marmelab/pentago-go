@@ -2,6 +2,8 @@ package ai
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 	"game"
 	"constants"
 )
@@ -36,6 +38,31 @@ func GetAllPossibleMoves(board game.Board) []Move {
 				if value == constants.EMPTY_CELL_VALUE {
 					placeMarble := [3]int{quadrantIndex, rowIndex, columnIndex}
 					moves = GetAllPossibleQuadrantRotation(board, moves, placeMarble)
+				}
+			}
+		}
+	}
+	if constants.RANDOMIZE_MOVES {
+		rand.Seed(time.Now().Unix())
+		rand.Shuffle(len(moves), func(i, j int) {
+			moves[i], moves[j] = moves[j], moves[i]
+		})
+	}
+	return moves
+}
+
+func GetAllPlacements(board game.Board) []Move {
+	var moves []Move
+	for quadrantIndex, quadrant := range(board.Quadrants) { // browse all quadrants
+		for rowIndex, row := range(quadrant) {
+			for columnIndex, value := range(row) {
+				// If it's an empty cell
+				if value == constants.EMPTY_CELL_VALUE {
+					placeMarble := [3]int{quadrantIndex, rowIndex, columnIndex}
+					move := Move{
+						PlaceMarble: placeMarble,
+					}
+					moves = append(moves, move)
 				}
 			}
 		}

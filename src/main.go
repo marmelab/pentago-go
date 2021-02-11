@@ -3,16 +3,17 @@ package main
 import (
     "log"
 	"fmt"
-	game "game"
-	fileReader "fileReader"
-	ai "ai"
 	"time"
 	"strings"
 	"sort"
+	"runtime"
+	"game"
+	"fileReader"
+	"ai"
+	"constants"
 )
 
-const MAX_RESULTS = 10
-const DEPTH = 3
+
 
 type Result struct {
 	move ai.Move
@@ -57,6 +58,7 @@ func main() {
 	start := time.Now()
 
 	moves := ai.GetAllPossibleMoves(board);
+	
 	var results []Result
 	for _, move := range moves {
 		newBoard := ai.ApplyMoveOnBoard(board, move, "1")
@@ -74,8 +76,9 @@ func main() {
 		results,
 		func(i, j int) bool { return results[i].score > results[j].score },
 	)
+	fmt.Println("Suggested moves :")
 
-	for _, result := range(results[:MAX_RESULTS]) {
+	for _, result := range(results[:constants.MAX_RESULTS]) {
 		placeMarble, _ := game.ConvertQuadrantPositionIntoBoardPosition(result.move.PlaceMarble)
 		rotate := result.move.Rotate
 

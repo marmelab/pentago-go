@@ -1,8 +1,9 @@
 package ai
 
 import (
-	"game"
 	"strconv"
+	"math"
+	"game"
 	"constants"
 )
 
@@ -25,7 +26,7 @@ func ApplyMoveOnBoard(board game.Board, move Move, currentPlayer string) game.Bo
 	return board;
 }
 
-func Minimax(depth int, board game.Board, currentPlayer string, move Move) (int, Move) {
+func Minimax(depth int, board game.Board, currentPlayer string, move Move, alpha int, beta int) (int, Move) {
 	// Get player1 and player2 binaries representation of their marbles
 	boardStringified := game.ToStringBoard(board)
 	
@@ -33,7 +34,7 @@ func Minimax(depth int, board game.Board, currentPlayer string, move Move) (int,
 
 	gameStatus, score, _ := EvaluateGameStatus(player1Int64, player2Int64)
 
-	if gameStatus != GAME_RUNNING {
+	if gameStatus != constants.GAME_RUNNING {
 		// fmt.Println(boardStringified, gameStatus, score)
 		return score, move
 	}
@@ -48,26 +49,31 @@ func Minimax(depth int, board game.Board, currentPlayer string, move Move) (int,
 	var bestMove Move
 	var bestScore int
 	if currentPlayer == constants.PLAYER1_VALUE {
-		bestScore = -SCORE_ALIGNED[4]
+		bestScore = - constants.SCORE_ALIGNED[4]
 	} else {
-		bestScore = SCORE_ALIGNED[4]
+		bestScore =  constants.SCORE_ALIGNED[4]
 	}
 
 
 	for _, move := range moves {
 		newBoard := ApplyMoveOnBoard(board, move, currentPlayer)
 		opponent := switchPlayer(currentPlayer)
-		childScore, _ := Minimax(depth - 1, newBoard, opponent, move)
+		childScore, _ := Minimax(depth - 1, newBoard, opponent, move, alpha, beta)
 
 		if currentPlayer == constants.PLAYER1_VALUE && bestScore < childScore {
 			bestScore = childScore
 			bestMove = move
-
-			// Alpha beta pruning should be here
+			alpha = int(math.Max(float64(alpha), float64(bestScore)))
+			if beta <= alpha  {
+				break
+			}
 		} else if currentPlayer == constants.PLAYER2_VALUE && bestScore > childScore {
 			bestScore = childScore
 			bestMove = move
-			// Alpha beta pruning should be here	
+			beta = int(math.Min(float64(beta), float64(bestScore)))
+			if beta <= alpha {
+				break
+			}
 		}
 	}
 	return bestScore, bestMove 
