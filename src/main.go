@@ -6,7 +6,6 @@ import (
 	"time"
 	"strings"
 	"sort"
-	"runtime"
 	"game"
 	"fileReader"
 	"ai"
@@ -61,9 +60,17 @@ func main() {
 	
 	var results []Result
 	for _, move := range moves {
-		newBoard := ai.ApplyMoveOnBoard(board, move, "1")
+		newBoard := ai.ApplyMoveOnBoard(board, move, constants.PLAYER1_VALUE)
 
-		score, _ := ai.Minimax(DEPTH - 1, newBoard, "2", move)
+		score, _ := ai.Minimax(
+			constants.DEPTH - 1,
+			newBoard,
+			constants.PLAYER2_VALUE,
+			move,
+			-constants.SCORE_ALIGNED[4],
+			constants.SCORE_ALIGNED[4],
+		)
+
 		results = append(results, Result{
 			move: move,
 			score: score,
