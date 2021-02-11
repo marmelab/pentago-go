@@ -7,7 +7,7 @@ import (
 	"constants"
 )
 
-func switchPlayer(currentPlayer string) string {
+func SwitchPlayer(currentPlayer string) string {
 	if currentPlayer == constants.PLAYER1_VALUE {
 		return constants.PLAYER2_VALUE
 	}
@@ -40,7 +40,7 @@ func Minimax(depth int, board game.Board, currentPlayer string, move Move, alpha
 	}
 
 	if depth == 0 {
-		score, _ := EvaluateScore(player1Int64, player2Int64)
+		score := EvaluateScore(player1Int64, player2Int64)
 		return score, move
 	}
 
@@ -57,12 +57,13 @@ func Minimax(depth int, board game.Board, currentPlayer string, move Move, alpha
 
 	for _, move := range moves {
 		newBoard := ApplyMoveOnBoard(board, move, currentPlayer)
-		opponent := switchPlayer(currentPlayer)
+		opponent := SwitchPlayer(currentPlayer)
 		childScore, _ := Minimax(depth - 1, newBoard, opponent, move, alpha, beta)
 
 		if currentPlayer == constants.PLAYER1_VALUE && bestScore < childScore {
 			bestScore = childScore
 			bestMove = move
+
 			alpha = int(math.Max(float64(alpha), float64(bestScore)))
 			if beta <= alpha  {
 				break
@@ -70,6 +71,7 @@ func Minimax(depth int, board game.Board, currentPlayer string, move Move, alpha
 		} else if currentPlayer == constants.PLAYER2_VALUE && bestScore > childScore {
 			bestScore = childScore
 			bestMove = move
+
 			beta = int(math.Min(float64(beta), float64(bestScore)))
 			if beta <= alpha {
 				break

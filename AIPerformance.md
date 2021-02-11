@@ -41,14 +41,9 @@ All of this AI benchmarks used the same datasets `monica_five.txt`
 
 See below to check with others configuration !
 
-## Add Go routine for each first move
-
-- Depth 2 = 140ms
-- Depth 3 = ~2-3s
-- Depth 4 = 1min47
 
 
-## Line straight configuration
+## Line straight configuration (To demonstrate randomness)
 
 ```
    0 1 2  3 4 5
@@ -63,7 +58,14 @@ See below to check with others configuration !
   └────────────┘
 ```
 
-### With Alpha Beta pruning
-- Depth 3 = 4s
-## With Randomize + Alpha Beta Pruning
-- Depth 3 = ~4-6s
+### Without Randomize
+- Depth 3 = ~1-2s
+- Depth 4 = 1min47
+## With Randomize
+
+- Depth 2 = 140ms
+- Depth 3 = ~2-3s
+
+## Close to the end
+
+

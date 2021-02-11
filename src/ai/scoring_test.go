@@ -162,9 +162,8 @@ func TestEvaluateGameStatus(t *testing.T) {
 }
 
 
-var scoreDatasets = []struct {
+var evaluateAllCombinationsOfWinDatasets = []struct {
 	in  string
-	currentPlayer string
 	out int
 }{
 	{`
@@ -176,7 +175,7 @@ var scoreDatasets = []struct {
 	|0|2|0||0|0|0|
 	|0|2|0||0|0|0|
 	|1|2|0||1|1|0|
-	└────────────┘`, "1", -1107},
+	└────────────┘`, -1107},
 	{`
 	┌────────────┐
 	|0|0|0||0|0|0|
@@ -186,7 +185,7 @@ var scoreDatasets = []struct {
 	|0|0|0||0|0|0|
 	|0|2|0||0|0|0|
 	|1|2|0||1|1|0|
-	└────────────┘`, "2", -1107},
+	└────────────┘`, -1107},
 	{`
 	┌────────────┐
 	|0|0|0||0|0|0|
@@ -196,7 +195,7 @@ var scoreDatasets = []struct {
 	|0|1|2||0|0|0|
 	|0|1|0||0|0|0|
 	|1|1|0||1|1|0|
-	└────────────┘`, "1", 2248},
+	└────────────┘`, 2248},
 	{`
 	┌────────────┐
 	|0|2|2||1|2|2|
@@ -206,7 +205,7 @@ var scoreDatasets = []struct {
 	|2|1|1||2|2|2|
 	|1|2|2||1|2|2|
 	|1|1|1||1|2|2|
-	└────────────┘`, "1", 0},
+	└────────────┘`, 0},
 	{`
 	┌────────────┐
 	|1|2|2||1|2|2|
@@ -216,7 +215,7 @@ var scoreDatasets = []struct {
 	|2|1|1||2|2|2|
 	|1|2|2||1|2|2|
 	|1|1|1||1|2|2|
-	└────────────┘`, "1", 0},
+	└────────────┘`, 0},
 	{`
 	┌────────────┐
 	|0|0|0||0|0|0|
@@ -226,7 +225,7 @@ var scoreDatasets = []struct {
 	|0|0|0||0|0|0|
 	|0|0|0||2|1|0|
 	|1|0|0||1|1|0|
-	└────────────┘`, "1", 235},
+	└────────────┘`, 235},
 	{`
 	┌────────────┐
 	|0|0|0||0|0|0|
@@ -236,19 +235,90 @@ var scoreDatasets = []struct {
 	|0|0|0||0|0|0|
 	|0|0|0||2|1|0|
 	|1|0|2||1|1|0|
-	└────────────┘`, "1", 124},
+	└────────────┘`, 124},
 }
 
-func TestEvaluateScore(t *testing.T) {
-	for _, data := range scoreDatasets {
+func TestEvaluateAllCombinationsOfWin(t *testing.T) {
+	for _, data := range evaluateAllCombinationsOfWinDatasets {
 		board, _ := game.DeserializeBoard(data.in)
 		boardStr := game.ToStringBoard(board)
 
 		player1Int64, player2Int64, _ := GetPlayerBoardsFromBoard(boardStr)
 
-		result, _ := EvaluateScore(player1Int64, player2Int64)
+		result := EvaluateAllCombinationsOfWin(player1Int64, player2Int64)
 		if (result != data.out) {
-			t.Errorf("Error EvaluateScore : returned %d, expected %d", result, data.out)
+			t.Errorf("Error EvaluateAllCombinationsOfWin : returned %d, expected %d", result, data.out)
+		}
+	}
+}
+
+var evaluateCentersDatasets = []struct {
+	in  string
+	out int
+}{
+	{`
+	┌────────────┐
+	|0|0|0||0|0|0|
+	|0|0|0||0|0|0|
+	|0|2|0||0|0|0|
+	|────────────|
+	|0|2|0||0|0|0|
+	|0|2|0||0|0|0|
+	|1|2|0||1|1|0|
+	└────────────┘`, -5},
+	{`
+	┌────────────┐
+	|0|0|0||0|0|0|
+	|0|2|0||0|0|0|
+	|0|2|0||0|0|0|
+	|────────────|
+	|0|0|0||0|0|0|
+	|0|2|0||0|0|0|
+	|1|2|0||1|1|0|
+	└────────────┘`, -10},
+	{`
+	┌────────────┐
+	|0|0|0||0|0|0|
+	|0|2|0||0|1|0|
+	|0|1|0||1|0|0|
+	|────────────|
+	|0|1|2||0|0|0|
+	|0|1|0||0|2|0|
+	|1|1|0||1|1|0|
+	└────────────┘`, 0},
+	{`
+	┌────────────┐
+	|0|2|2||1|2|2|
+	|1|1|2||2|1|1|
+	|1|1|2||1|1|1|
+	|────────────|
+	|2|1|1||2|2|2|
+	|1|2|2||1|1|2|
+	|1|1|1||1|2|2|
+	└────────────┘`, 10},
+	{`
+	┌────────────┐
+	|1|2|2||1|2|2|
+	|1|1|2||2|1|1|
+	|1|1|2||1|1|1|
+	|────────────|
+	|2|1|1||2|2|2|
+	|1|1|2||1|1|2|
+	|1|1|1||1|2|2|
+	└────────────┘`, 20},
+}
+
+
+func TestEvaluateCenters(t *testing.T) {
+	for _, data := range evaluateCentersDatasets {
+		board, _ := game.DeserializeBoard(data.in)
+		boardStr := game.ToStringBoard(board)
+
+		player1Int64, player2Int64, _ := GetPlayerBoardsFromBoard(boardStr)
+
+		result := EvaluateCenters(player1Int64, player2Int64)
+		if (result != data.out) {
+			t.Errorf("Error EvaluateAllCombinationsOfWin : returned %d, expected %d", result, data.out)
 		}
 	}
 }
