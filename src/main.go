@@ -165,7 +165,7 @@ func main() {
 			rotate[1],
 		)
 
-		if constants.PRINT_BOARD_FOR_MOVES == true {
+		if constants.PRINT_MOVES == true {
 			newBoard := ai.ApplyMoveOnBoard(board, move, constants.FIRST_PLAYER_VALUE)
 			PrintBoard(newBoard)
 	
