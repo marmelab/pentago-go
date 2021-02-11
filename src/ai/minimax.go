@@ -3,14 +3,15 @@ package ai
 import (
 	"game"
 	"strconv"
+	"constants"
 )
 
 func switchPlayer(currentPlayer string) string {
-	if currentPlayer == "1" {
-		return "2"
+	if currentPlayer == constants.PLAYER1_VALUE {
+		return constants.PLAYER2_VALUE
 	}
 
-	return "1"
+	return constants.PLAYER1_VALUE
 }
 
 func ApplyMoveOnBoard(board game.Board, move Move, currentPlayer string) game.Board {
@@ -30,14 +31,15 @@ func Minimax(depth int, board game.Board, currentPlayer string, move Move) (int,
 	
 	player1Int64, player2Int64, _ := GetPlayerBoardsFromBoard(boardStringified)
 
-	gameStatus, score, _ := EvaluateGameStatus(player1Int64, player2Int64, currentPlayer)
+	gameStatus, score, _ := EvaluateGameStatus(player1Int64, player2Int64)
 
 	if gameStatus != GAME_RUNNING {
+		// fmt.Println(boardStringified, gameStatus, score)
 		return score, move
 	}
 
 	if depth == 0 {
-		score, _ := EvaluateScore(player1Int64, player2Int64, currentPlayer)
+		score, _ := EvaluateScore(player1Int64, player2Int64)
 		return score, move
 	}
 
@@ -45,29 +47,28 @@ func Minimax(depth int, board game.Board, currentPlayer string, move Move) (int,
 
 	var bestMove Move
 	var bestScore int
-	if currentPlayer == "1" {
+	if currentPlayer == constants.PLAYER1_VALUE {
 		bestScore = -SCORE_ALIGNED[4]
 	} else {
 		bestScore = SCORE_ALIGNED[4]
 	}
 
+
 	for _, move := range moves {
 		newBoard := ApplyMoveOnBoard(board, move, currentPlayer)
 		opponent := switchPlayer(currentPlayer)
-		childScore, childMove := Minimax(depth - 1, newBoard, opponent, move)
+		childScore, _ := Minimax(depth - 1, newBoard, opponent, move)
 
-		if currentPlayer == "1" && bestScore < childScore {
+		if currentPlayer == constants.PLAYER1_VALUE && bestScore < childScore {
 			bestScore = childScore
-			bestMove = childMove
+			bestMove = move
 
 			// Alpha beta pruning should be here
-		} else if currentPlayer == "2" && bestScore > childScore {
+		} else if currentPlayer == constants.PLAYER2_VALUE && bestScore > childScore {
 			bestScore = childScore
-			bestMove = childMove
-			// Alpha beta pruning should be here
-
-		}	
+			bestMove = move
+			// Alpha beta pruning should be here	
+		}
 	}
-
 	return bestScore, bestMove 
 }

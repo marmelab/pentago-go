@@ -3,25 +3,6 @@ package ai
 import (
     "testing"
 )
-var countBitsForCombinationIfStillPossibleDataset = []struct {
-	in  [3]int64
-	out int
-}{
-	{[3]int64{0b10000_100000_100000_100000_100000_000000, 0b10000_100000_100000_000000_100000_100011, 0b00000_000000_000000_100000_000000_000000}, 0},
-	{[3]int64{0b10000_100000_100000_100000_100000_000000, 0b10000_100000_100000_000000_100000_100011, 0b00000_000000_000000_010000_000000_100001}, 4},
-}
-func TestCountBitsForCombinationIfStillPossible(t *testing.T) {
-	for _, data := range countBitsForCombinationIfStillPossibleDataset {
-		result := CountBitsForCombinationIfStillPossible(data.in[0], data.in[1], data.in[2])
-		expected_result := data.out
-	
-		if result != expected_result {
-			t.Errorf("Error CountBitsForCombinationIfStillPossible : got %d, want %d", result, expected_result)
-		}
-	}
-
-
-}
 
 var binaryCompareInt64Datasets = []struct {
 	in  [2]int64
@@ -61,6 +42,26 @@ func TestCountCommonBitsBetweenTwoInt64(t *testing.T) {
 			t.Errorf("Error CountCommonBitsBetweenTwoInt64 : got %d, want %d", result, data.out)
 		}
 	}
+}
+
+var countBitsForCombinationIfStillPossibleDataset = []struct {
+	in  [3]int64
+	out int
+}{
+	{[3]int64{0b10000_100000_100000_100000_100000_000000, 0b10000_100000_100000_000000_100000_100011, 0b00000_000000_000000_100000_000000_000000}, 0},
+	{[3]int64{0b10000_100000_100000_100000_100000_000000, 0b10000_100000_100000_000000_100000_100011, 0b00000_000000_000000_010000_000000_100001}, 4},
+}
+func TestCountBitsForCombinationIfStillPossible(t *testing.T) {
+	for _, data := range countBitsForCombinationIfStillPossibleDataset {
+		result := CountBitsForCombinationIfStillPossible(data.in[0], data.in[1], data.in[2])
+		expected_result := data.out
+	
+		if result != expected_result {
+			t.Errorf("Error CountBitsForCombinationIfStillPossible : got %d, want %d", result, expected_result)
+		}
+	}
+
+
 }
 
 var isBoardFullDataset = []struct {

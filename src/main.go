@@ -8,11 +8,16 @@ import (
 	ai "ai"
 	"time"
 	"strings"
-	// "sort"
+	"sort"
 )
 
 const MAX_RESULTS = 10
-const DEPTH = 2
+const DEPTH = 3
+
+type Result struct {
+	move ai.Move
+	score int
+}
 
 func PrintBoard(board string) {
 	fmt.Println("   0 1 2  3 4 5")
@@ -51,16 +56,39 @@ func main() {
 
 	start := time.Now()
 
-	var startMove ai.Move
-	score, move := ai.Minimax(DEPTH, board, "1", startMove)
+	moves := ai.GetAllPossibleMoves(board);
+	var results []Result
+	for _, move := range moves {
+		newBoard := ai.ApplyMoveOnBoard(board, move, "1")
 
-	if err != nil {
-		log.Fatal(err)
+		score, _ := ai.Minimax(DEPTH - 1, newBoard, "2", move)
+		results = append(results, Result{
+			move: move,
+			score: score,
+		})
+	}
+	
+	elapsed := time.Since(start)
+	
+	sort.Slice(
+		results,
+		func(i, j int) bool { return results[i].score > results[j].score },
+	)
+
+	for _, result := range(results[:MAX_RESULTS]) {
+		placeMarble, _ := game.ConvertQuadrantPositionIntoBoardPosition(result.move.PlaceMarble)
+		rotate := result.move.Rotate
+
+		fmt.Printf(
+			"=> %d : Place a marble in %d %d and rotate quadrant %v in %v \n",
+			result.score,
+			placeMarble[0],
+			placeMarble[1],
+			rotate[0],
+			rotate[1],
+		)
 	}
 
-	fmt.Println(score, move)
-
-	elapsed := time.Since(start)
 
 	fmt.Printf("\nFound in %v\n\n", elapsed)
 }

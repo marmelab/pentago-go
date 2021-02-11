@@ -2,7 +2,8 @@ package ai
 
 import (
 	"fmt"
-	game "game"
+	"game"
+	"constants"
 )
 
 
@@ -14,7 +15,7 @@ type Move struct {
 func GetAllPossibleQuadrantRotation(board game.Board, moves []Move, placeMarble [3]int) []Move {
 	for rotateQuadrantIndex, _ := range(board.Quadrants) {
 		// And for each quadrant, rotate it clockwise and counter clockwise
-		for _, rotateKey := range([2]string{game.ROTATE_CLOCKWISE, game.ROTATE_COUNTER_CLOCKWISE})  {
+		for _, rotateKey := range([2]string{constants.ROTATE_CLOCKWISE, constants.ROTATE_COUNTER_CLOCKWISE})  {
 			move := Move{
 				PlaceMarble: placeMarble,
 				Rotate: [2]string{fmt.Sprint(rotateQuadrantIndex), rotateKey},
@@ -32,7 +33,7 @@ func GetAllPossibleMoves(board game.Board) []Move {
 		for rowIndex, row := range(quadrant) {
 			for columnIndex, value := range(row) {
 				// If it's an empty cell
-				if value == "0" {
+				if value == constants.EMPTY_CELL_VALUE {
 					placeMarble := [3]int{quadrantIndex, rowIndex, columnIndex}
 					moves = GetAllPossibleQuadrantRotation(board, moves, placeMarble)
 				}

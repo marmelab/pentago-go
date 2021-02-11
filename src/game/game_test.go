@@ -149,6 +149,7 @@ func TestConvertQuadrantPositionIntoBoardPositionThrowAnError(t *testing.T) {
 	}
 }
 
+
 func TestTranspose(t *testing.T) {
 	rawBoard := `┌────────────┐
 				|0|1|1||0|2|1|

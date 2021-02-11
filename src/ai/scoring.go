@@ -85,7 +85,7 @@ func DetectWinner(player1Int64 int64, player2Int64 int64) (string, error) {
 	return gameResult, nil
 }
 
-func EvaluateGameStatus(player1Int64 int64, player2Int64 int64, currentPlayer string) (string, int, error) {
+func EvaluateGameStatus(player1Int64 int64, player2Int64 int64) (string, int, error) {
 
 	winStatus, err := DetectWinner(player1Int64, player2Int64)
 	if err != nil {
@@ -94,28 +94,25 @@ func EvaluateGameStatus(player1Int64 int64, player2Int64 int64, currentPlayer st
 	switch true {
 	case winStatus == GAME_DRAW:
 		return GAME_DRAW, 0, nil
-	case winStatus == GAME_PLAYER1_WON && currentPlayer == "1" || winStatus == GAME_PLAYER2_WON && currentPlayer == "2":
+	case winStatus == GAME_PLAYER1_WON:
 		return GAME_PLAYER1_WON, SCORE_ALIGNED[4], nil
-	case winStatus == GAME_PLAYER2_WON && currentPlayer == "1" || winStatus == GAME_PLAYER1_WON && currentPlayer == "2":
+	case winStatus == GAME_PLAYER2_WON:
 		return GAME_PLAYER2_WON, -SCORE_ALIGNED[4], nil
 	}
 
 	return GAME_RUNNING, 0, nil
 }
 
-func EvaluateScore(player1Int64 int64, player2Int64 int64, currentPlayer string) (int, error) {
+func EvaluateScore(player1Int64 int64, player2Int64 int64) (int, error) {
 
 	score := 0
 
 	var playerInt64, opponentInt64 int64
 
-	if currentPlayer == "1" {
-		playerInt64 = player1Int64
-		opponentInt64 = player2Int64
-	} else {
-		playerInt64 = player2Int64
-		opponentInt64 = player1Int64
-	}
+
+	playerInt64 = player1Int64
+	opponentInt64 = player2Int64
+
 
 	// Get all combinations and use binary comparaison.
 	for _, combination := range GetAllCombinations() {
