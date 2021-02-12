@@ -5,7 +5,7 @@ const MAX_RESULTS = 5
 
 
 // Careful, it spam terminal !
-const PRINT_MOVES = true
+const PRINT_MOVES = false
 
 // Who begin ?
 const FIRST_PLAYER_VALUE = "1"

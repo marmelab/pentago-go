@@ -43,7 +43,7 @@ See below to check with others configuration !
 
 
 
-## Line straight configuration (To demonstrate randomness)
+## Line straight configuration (To demonstrate randomize)
 
 ```
    0 1 2  3 4 5
@@ -60,12 +60,27 @@ See below to check with others configuration !
 
 ### Without Randomize
 - Depth 3 = ~1-2s
-- Depth 4 = 1min47
 ## With Randomize
 
-- Depth 2 = 140ms
 - Depth 3 = ~2-3s
 
 ## Close to the end
 
+   0 1 2  3 4 5
+  ┌────────────┐
+0 |1|0|2||0|2|1|
+1 |0|1|0||0|2|0|
+2 |2|0|2||1|2|0|
+  |────────────|
+3 |1|0|1||1|0|2|
+4 |1|2|2||2|1|0|
+5 |0|0|0||0|0|1|
+  └────────────┘
+
+With AB Pruning, randomize & go routines
+
+- Depth 2 = 19ms
+- Depth 3 = ~650ms
+- Depth 4 = 9s
+- Depth 5 = ~2.30-4min
 
