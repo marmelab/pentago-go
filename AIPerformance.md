@@ -19,19 +19,19 @@ All of this AI benchmarks used the same datasets `monica_five.txt`
   └────────────┘
 ```
 
-## Without optimization
+### Without optimization
 
 - Depth 2 = 135ms
 - Depth 3 = 32s
 - Depth 4 = Too long
 
-## With Alpha Beta pruning
+### With Alpha Beta pruning
 
 - Depth 2 = 147ms
 - Depth 3 = 7s
 - Depth 4 = 9min
 
-## Add Randomize on pruning
+### Add Randomize on pruning
 
 - Depth 2 = ~140-150ms
 - Depth 3 = ~4-6s
@@ -40,9 +40,12 @@ All of this AI benchmarks used the same datasets `monica_five.txt`
 > The game state configuration force players to move on the center of the board. Is it always true ?
 
 See below to check with others configuration !
+### Add Go routine for each first move
 
-
-
+- Depth 2 = 140ms
+- Depth 3 = ~2-3s
+- Depth 4 = 1min47
+  
 ## Line straight configuration (To demonstrate randomize)
 
 ```
@@ -60,7 +63,7 @@ See below to check with others configuration !
 
 ### Without Randomize
 - Depth 3 = ~1-2s
-## With Randomize
+### With Randomize
 
 - Depth 3 = ~2-3s
 
@@ -77,7 +80,7 @@ See below to check with others configuration !
 5 |0|0|0||0|0|1|
   └────────────┘
 
-With AB Pruning, randomize & go routines
+### With AB Pruning, randomize & go routines
 
 - Depth 2 = 19ms
 - Depth 3 = ~650ms

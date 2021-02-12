@@ -5,7 +5,7 @@ const MAX_RESULTS = 5
 
 
 // Careful, it spam terminal !
-const PRINT_MOVES = false
+const PRINT_MOVES = true
 
 // Who begin ?
 const FIRST_PLAYER_VALUE = "1"
@@ -14,11 +14,9 @@ const FIRST_PLAYER_VALUE = "1"
 const DEPTH = 3
 
 // Shuffle moves to avoid only begin to browse tree from left - top to right - bottom
-const RANDOMIZE_MOVES = true
+const RANDOMIZE_MOVES = false
 
 // Scope calculation
 var  SCORE_ALIGNED = [5]int{1, 10, 100, 1000, 10000}
 
 const SCORE_CENTER = 5
-
-

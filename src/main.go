@@ -137,16 +137,19 @@ func main() {
 
 	elapsed := time.Since(start)
 
-
-	numberOfNodesToCompute := EstimateBrowsedNodes(len(results), constants.DEPTH)
+	numberOfResults := len(results)
+	numberOfNodesToCompute := EstimateBrowsedNodes(numberOfResults, constants.DEPTH)
 	fmt.Printf("Results analyzed : %d, Depth : %d\n", numberOfNodesToCompute, constants.DEPTH)
+	
+	
 	sort.Slice(
 		results,
 		func(i, j int) bool { return results[i].score > results[j].score },
 	)
-	fmt.Println("Suggested moves :")
-	for _, result := range(results[:constants.MAX_RESULTS]) {
+	fmt.Println("\nSuggested moves (sorted by score DESC) :")
 
+	for i:= constants.MAX_RESULTS - 1; i >= 0; i-- {
+		result := results[i]
 
 		fmt.Printf(
 			"\n===> %d : ",
@@ -172,18 +175,23 @@ func main() {
 			move = result.opponentMove
 			placeMarble, _ = game.ConvertQuadrantPositionIntoBoardPosition(move.PlaceMarble)
 			rotate = move.Rotate
+
+			if result.score != constants.SCORE_ALIGNED[4] {
+				fmt.Printf("\nOpponent should play in %d %d and rotate quadrant %v in %v to get the following result : \n",
+					placeMarble[0],
+					placeMarble[1],
+					rotate[0],
+					rotate[1],
+				)
+		
+				opponent := ai.SwitchPlayer(constants.FIRST_PLAYER_VALUE)
+				newBoard = ai.ApplyMoveOnBoard(newBoard, result.opponentMove, opponent)
+		
+				PrintBoard(newBoard)
+			} else {
+				fmt.Println("And GJ, you win !")
+			}
 			
-			fmt.Printf("\nOpponent should play in %d %d and rotate quadrant %v in %v to get the following result : \n",
-				placeMarble[0],
-				placeMarble[1],
-				rotate[0],
-				rotate[1],
-			)
-	
-			opponent := ai.SwitchPlayer(constants.FIRST_PLAYER_VALUE)
-			newBoard = ai.ApplyMoveOnBoard(newBoard, result.opponentMove, opponent)
-	
-			PrintBoard(newBoard)
 		}
 
 	}
