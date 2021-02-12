@@ -49,7 +49,7 @@ func Minimax(depth int, board game.Board, currentPlayer string, move Move, alpha
 	var bestMove Move
 	var bestScore int
 	if currentPlayer == constants.PLAYER1_VALUE {
-		bestScore = - constants.SCORE_ALIGNED[4]
+		bestScore = -constants.SCORE_ALIGNED[4]
 	} else {
 		bestScore =  constants.SCORE_ALIGNED[4]
 	}
