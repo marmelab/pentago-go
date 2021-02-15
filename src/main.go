@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 	"strings"
+	"sync"
 	"sort"
 	"game"
 	"fileReader"
@@ -16,10 +17,11 @@ import (
 
 type Result struct {
 	move ai.Move
+	opponentMove ai.Move
 	score int
 }
 
-func PrintBoard(board string) {
+func PrintBoardFromFile(board string) {
 	fmt.Println("   0 1 2  3 4 5")
 	boardSplitted := strings.Split(board, "\n")
 	for x, line := range boardSplitted {
@@ -40,9 +42,62 @@ func PrintBoard(board string) {
 
 }
 
-func main() {
-	content, err := fileReader.GetFileContent()
+func PrintBoard(board game.Board) {
+	boardStr := game.ToStringBoard(board)
 
+	fmt.Println("┌────────────┐")
+	for i, r := range boardStr {
+		if i == 18 {
+			fmt.Println("|────────────|")
+		}
+		fmt.Printf("|%c", r)
+		if (i + 1) %6 == 0 {
+			fmt.Printf("|\n")
+		} else if (i+1) %3 == 0 {
+			fmt.Printf("|")
+		}
+	}
+	fmt.Println("└────────────┘")
+}
+
+func StartFirstNodeMinimax(board game.Board, move ai.Move, ch chan Result, key int, wg *sync.WaitGroup) {
+	
+	defer wg.Done()
+
+	newBoard := ai.ApplyMoveOnBoard(board, move, constants.FIRST_PLAYER_VALUE)
+	opponent := ai.SwitchPlayer(constants.FIRST_PLAYER_VALUE)
+    // fmt.Printf("Worker %d starting\n", key)
+	score, opponentMove := ai.Minimax(
+		constants.DEPTH - 1,
+		newBoard,
+		opponent,
+		move,
+		-constants.SCORE_ALIGNED[4],
+		constants.SCORE_ALIGNED[4],
+	)
+	ch <- Result{
+		move: move,
+		opponentMove: opponentMove,
+		score: score,
+	}
+}
+
+func EstimateBrowsedNodes(rootTreeLength int, iteration int) int {
+	result := rootTreeLength
+
+	for i := 1; i < iteration; i++ {
+		result = result * (rootTreeLength - i)
+	}
+
+	return result
+}
+
+func main() {
+	var wg sync.WaitGroup
+
+	content, err := fileReader.GetFileContent()
+	PrintBoardFromFile(content)
+	
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -52,53 +107,94 @@ func main() {
 		log.Fatal(err)
 	}
 
-	PrintBoard(content)
 
 	start := time.Now()
 
 	moves := ai.GetAllPossibleMoves(board);
 	
 	var results []Result
-	for _, move := range moves {
-		newBoard := ai.ApplyMoveOnBoard(board, move, constants.PLAYER1_VALUE)
 
-		score, _ := ai.Minimax(
-			constants.DEPTH - 1,
-			newBoard,
-			constants.PLAYER2_VALUE,
-			move,
-			-constants.SCORE_ALIGNED[4],
-			constants.SCORE_ALIGNED[4],
-		)
+	// Make communication between main & routines possible
+	ch := make(chan Result)
 
-		results = append(results, Result{
-			move: move,
-			score: score,
-		})
+	// The WaitGroup will wait len(moves) routines
+	wg.Add(len(moves))
+
+	for x, move := range moves {
+		go StartFirstNodeMinimax(board, move, ch, x, &wg)
 	}
-	
+
+	// Compute result sent in the channel
+	go func() {
+		for result := range ch {
+			results = append(results, result)
+        }
+	}()
+
+	// Wait all workers has been closed
+	wg.Wait()
+	close(ch)
+
 	elapsed := time.Since(start)
+
+	numberOfResults := len(results)
+	numberOfNodesToCompute := EstimateBrowsedNodes(numberOfResults, constants.DEPTH)
+	fmt.Printf("Results analyzed : %d, Depth : %d\n", numberOfNodesToCompute, constants.DEPTH)
+	
 	
 	sort.Slice(
 		results,
 		func(i, j int) bool { return results[i].score > results[j].score },
 	)
-	fmt.Println("Suggested moves :")
+	fmt.Println("\nSuggested moves (sorted by score DESC) :")
 
-	for _, result := range(results[:constants.MAX_RESULTS]) {
-		placeMarble, _ := game.ConvertQuadrantPositionIntoBoardPosition(result.move.PlaceMarble)
-		rotate := result.move.Rotate
+	for i:= constants.MAX_RESULTS - 1; i >= 0; i-- {
+		result := results[i]
 
 		fmt.Printf(
-			"=> %d : Place a marble in %d %d and rotate quadrant %v in %v \n",
+			"\n===> %d : ",
 			result.score,
+		)
+
+		move := result.move
+
+		placeMarble, _ := game.ConvertQuadrantPositionIntoBoardPosition(move.PlaceMarble)
+		rotate := move.Rotate
+
+		fmt.Printf("You should place a marble in %d %d and rotate quadrant %v in %v \n",
 			placeMarble[0],
 			placeMarble[1],
 			rotate[0],
 			rotate[1],
 		)
-	}
 
+		if constants.PRINT_MOVES == true {
+			newBoard := ai.ApplyMoveOnBoard(board, move, constants.FIRST_PLAYER_VALUE)
+			PrintBoard(newBoard)
+	
+			move = result.opponentMove
+			placeMarble, _ = game.ConvertQuadrantPositionIntoBoardPosition(move.PlaceMarble)
+			rotate = move.Rotate
+
+			if result.score != constants.SCORE_ALIGNED[4] {
+				fmt.Printf("\nOpponent should play in %d %d and rotate quadrant %v in %v to get the following result : \n",
+					placeMarble[0],
+					placeMarble[1],
+					rotate[0],
+					rotate[1],
+				)
+		
+				opponent := ai.SwitchPlayer(constants.FIRST_PLAYER_VALUE)
+				newBoard = ai.ApplyMoveOnBoard(newBoard, result.opponentMove, opponent)
+		
+				PrintBoard(newBoard)
+			} else {
+				fmt.Println("And GJ, you win !")
+			}
+			
+		}
+
+	}
 
 	fmt.Printf("\nFound in %v\n\n", elapsed)
 }

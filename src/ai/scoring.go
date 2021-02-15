@@ -45,7 +45,7 @@ func DetectWinner(player1Int64 int64, player2Int64 int64) (string, error) {
 	gameResult := constants.GAME_RUNNING
 
 	// Get all combinations and use binary comparaison.
-	for _, combination := range GetAllCombinations() {
+	for _, combination := range ALL_COMBINATIONS_OF_WIN {
 		
 		// We don't need to check other combinations if player 1 has already an alignment
 		if gameResult != constants.GAME_PLAYER1_WON {
@@ -100,19 +100,10 @@ func EvaluateGameStatus(player1Int64 int64, player2Int64 int64) (string, int, er
 	return constants.GAME_RUNNING, 0, nil
 }
 
-func EvaluateScore(player1Int64 int64, player2Int64 int64) (int, error) {
-
+func EvaluateAllCombinationsOfWin(playerInt64 int64, opponentInt64 int64) int {
 	score := 0
-
-	var playerInt64, opponentInt64 int64
-
-
-	playerInt64 = player1Int64
-	opponentInt64 = player2Int64
-
-
 	// Get all combinations and use binary comparaison.
-	for _, combination := range GetAllCombinations() {
+	for _, combination := range ALL_COMBINATIONS_OF_WIN {
 		marblesAligned := CountBitsForCombinationIfStillPossible(combination, playerInt64, opponentInt64)
 		
 		// 0 means no marbles are in this combinaton or opponent already countered this combination.
@@ -126,5 +117,40 @@ func EvaluateScore(player1Int64 int64, player2Int64 int64) (int, error) {
 		}
 	}
 
-	return score, nil
+	return score
+}
+
+func EvaluateCenters(playerInt64 int64, opponentInt64 int64) int {
+	score := 0
+
+	for _, combination := range MIDDLE_QUADRANTS {
+		marblesAligned := CountBitsForCombinationIfStillPossible(combination, playerInt64, opponentInt64)
+		
+		// 0 means no marbles are in this combinaton or opponent already countered this combination.
+		if marblesAligned != 0 {
+			score = score +  constants.SCORE_CENTER
+		}
+
+		marblesAligned = CountBitsForCombinationIfStillPossible(combination, opponentInt64, playerInt64)
+		if marblesAligned != 0 {
+			score = score -  constants.SCORE_CENTER
+		}
+	}
+	return score
+
+}
+
+func EvaluateScore(player1Int64 int64, player2Int64 int64) int {
+
+	score := 0
+
+	var playerInt64, opponentInt64 int64
+
+	playerInt64 = player1Int64
+	opponentInt64 = player2Int64
+	score = score + EvaluateCenters(playerInt64, opponentInt64)
+	score = score + EvaluateAllCombinationsOfWin(playerInt64, opponentInt64)
+	
+
+	return score
 }
