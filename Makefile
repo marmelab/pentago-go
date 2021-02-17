@@ -7,7 +7,7 @@ install: ## Install and build go container
 	docker-compose build
 
 start: ## Start go script
-	docker-compose up --force-recreate -d
+	docker-compose up --force-recreate 
 
 stop: ## Stop script
 	docker-compose stop

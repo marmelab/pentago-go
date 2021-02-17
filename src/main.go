@@ -95,7 +95,8 @@ func getBestMoveForPlayer(w http.ResponseWriter, r *http.Request) {
 	arr := game.TwoDimensionArrayBoard{}
 	json.NewDecoder(r.Body).Decode(&arr)
 	currentPlayer := strconv.Itoa(arr.CurrentPlayer)
-
+	
+	fmt.Println("Received", arr)
 	board := game.DeserializeTwoDimensionArrayBoard(arr)
 	// Make communication between main & routines possible
 	ch := make(chan Result)
