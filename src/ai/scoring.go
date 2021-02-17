@@ -85,21 +85,23 @@ func DetectWinner(player1Int64 int64, player2Int64 int64) (string, error) {
 func EvaluateGameStatus(player1Int64 int64, player2Int64 int64, firstPlayer string) (string, int, error) {
 
 	winStatus, err := DetectWinner(player1Int64, player2Int64)
+	score := 0
 	if err != nil {
-		return "", 0, err
-	}
-	switch true {
-	case winStatus == constants.GAME_DRAW:
-		return constants.GAME_DRAW, 0, nil
-	case winStatus == constants.GAME_PLAYER1_WON && firstPlayer == constants.PLAYER1_VALUE:
-	case winStatus == constants.GAME_PLAYER2_WON && firstPlayer == constants.PLAYER2_VALUE:
-		return constants.GAME_PLAYER1_WON,  constants.SCORE_ALIGNED[4], nil
-	case winStatus == constants.GAME_PLAYER2_WON && firstPlayer != constants.PLAYER2_VALUE:
-	case winStatus == constants.GAME_PLAYER1_WON && firstPlayer != constants.PLAYER1_VALUE:
-		return constants.GAME_PLAYER2_WON, -constants.SCORE_ALIGNED[4], nil
+		return "", score, err
 	}
 
-	return constants.GAME_RUNNING, 0, nil
+	switch true {
+	case winStatus == constants.GAME_PLAYER1_WON && firstPlayer == constants.PLAYER1_VALUE:
+		score = constants.SCORE_ALIGNED[4]
+	case winStatus == constants.GAME_PLAYER2_WON && firstPlayer == constants.PLAYER2_VALUE:
+		score = constants.SCORE_ALIGNED[4]
+	case winStatus == constants.GAME_PLAYER1_WON && firstPlayer != constants.PLAYER1_VALUE:
+		score = -constants.SCORE_ALIGNED[4]
+	case winStatus == constants.GAME_PLAYER2_WON && firstPlayer != constants.PLAYER2_VALUE:
+		score = -constants.SCORE_ALIGNED[4]
+	}
+
+	return winStatus, score, nil
 }
 
 func EvaluateAllCombinationsOfWin(playerInt64 int64, opponentInt64 int64) int {
@@ -107,7 +109,7 @@ func EvaluateAllCombinationsOfWin(playerInt64 int64, opponentInt64 int64) int {
 	// Get all combinations and use binary comparaison.
 	for _, combination := range ALL_COMBINATIONS_OF_WIN {
 		marblesAligned := CountBitsForCombinationIfStillPossible(combination, playerInt64, opponentInt64)
-		
+
 		// 0 means no marbles are in this combinaton or opponent already countered this combination.
 		if marblesAligned != 0 {
 			score = score +  constants.SCORE_ALIGNED[marblesAligned - 1]

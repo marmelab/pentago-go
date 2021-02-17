@@ -50,7 +50,7 @@ func TestGetPlayerBoardsFromBoard(t *testing.T) {
 
 var detectWinnerDatasets = []struct {
 	in  string
-	out string
+	out int
 }{
 	{`
 	┌────────────┐
@@ -61,7 +61,7 @@ var detectWinnerDatasets = []struct {
 	|0|0|0||0|0|0|
 	|0|0|0||0|0|0|
 	|0|0|0||0|0|0|
-	└────────────┘`, "GAME_PLAYER1_WON"},
+	└────────────┘`, 10000},
 	{`
 	┌────────────┐
 	|1|0|1||1|1|0|
@@ -71,7 +71,7 @@ var detectWinnerDatasets = []struct {
 	|0|0|0||1|0|0|
 	|0|0|0||0|1|0|
 	|0|0|0||0|0|0|
-	└────────────┘`, "GAME_PLAYER1_WON"},
+	└────────────┘`, 10000},
 	{`
 	┌────────────┐
 	|1|1|1||1|1|0|
@@ -81,7 +81,7 @@ var detectWinnerDatasets = []struct {
 	|0|0|0||0|0|0|
 	|0|0|0||0|0|0|
 	|2|2|2||2|2|0|
-	└────────────┘`, "GAME_DRAW"},
+	└────────────┘`, 0},
 	{`
 	┌────────────┐
 	|0|0|0||0|0|0|
@@ -91,7 +91,7 @@ var detectWinnerDatasets = []struct {
 	|0|2|0||0|0|0|
 	|0|2|0||0|0|0|
 	|1|2|0||1|1|0|
-	└────────────┘`, "GAME_PLAYER2_WON"},
+	└────────────┘`, -10000},
 	{`
 	┌────────────┐
 	|0|0|0||0|0|0|
@@ -101,7 +101,7 @@ var detectWinnerDatasets = []struct {
 	|0|1|1||0|0|0|
 	|0|1|0||0|0|0|
 	|1|1|0||1|1|0|
-	└────────────┘`, "GAME_PLAYER1_WON"},
+	└────────────┘`, 10000},
 	{`
 	┌────────────┐
 	|0|2|2||1|2|2|
@@ -111,7 +111,7 @@ var detectWinnerDatasets = []struct {
 	|2|1|1||2|2|2|
 	|1|2|2||1|2|2|
 	|1|1|1||1|2|2|
-	└────────────┘`, "GAME_RUNNING"},
+	└────────────┘`, 0},
 	{`
 	┌────────────┐
 	|1|2|2||1|2|2|
@@ -121,22 +121,7 @@ var detectWinnerDatasets = []struct {
 	|2|1|1||2|2|2|
 	|1|2|2||1|2|2|
 	|1|1|1||1|2|2|
-	└────────────┘`, "GAME_DRAW"},
-}
-
-func TestDetectWinner(t *testing.T) {
-	for _, data := range detectWinnerDatasets {
-		board, _ := game.DeserializeBoard(data.in)
-		boardStringified := game.ToStringBoard(board)
-		player1Int64, player2Int64, _ := GetPlayerBoardsFromBoard(boardStringified)
-		result, _ := DetectWinner(player1Int64, player2Int64)
-
-		if result != data.out {
-			fmt.Println(data.in)
-			t.Errorf("Error EvaluteGameStatus: got %v, want %v", result, data.out)
-		}
-	}
-
+	└────────────┘`, 0},
 }
 
 func TestEvaluateGameStatus(t *testing.T) {
@@ -149,14 +134,14 @@ func TestEvaluateGameStatus(t *testing.T) {
 			t.Errorf("Error thrown during deserialization")
 		}
 
-		result, _, err := EvaluateGameStatus(player1Int64, player2Int64)
+		result, score, err := EvaluateGameStatus(player1Int64, player2Int64, "1")
 
 		if err != nil {
 			t.Errorf("Error thrown during winner detection")
 		}
-		if result != data.out {
+		if score != data.out {
 			fmt.Println(data.in)
-			t.Errorf("Error EvaluteGameStatus: got %v, want %v", result, data.out)
+			t.Errorf("Error EvaluteGameStatus: got %v, %v, want %v",result, score, data.out)
 		}
 	}
 }
