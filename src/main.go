@@ -96,7 +96,6 @@ func getBestMoveForPlayer(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&arr)
 	currentPlayer := strconv.Itoa(arr.CurrentPlayer)
 	
-	fmt.Println("Received", arr)
 	board := game.DeserializeTwoDimensionArrayBoard(arr)
 	// Make communication between main & routines possible
 	ch := make(chan Result)
@@ -128,7 +127,6 @@ func getBestMoveForPlayer(w http.ResponseWriter, r *http.Request) {
 		func(i, j int) bool { return results[i].Score > results[j].Score },
 	)
 	result := results[0]
-	fmt.Println(result)
 	placeMarble, _ := game.ConvertQuadrantPositionIntoBoardPosition(result.move.PlaceMarble)
 
 	data := ResultData{
