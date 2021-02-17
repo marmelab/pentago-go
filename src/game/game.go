@@ -2,6 +2,7 @@ package game
 
 import (
 	"strings"
+	"strconv"
 	"regexp"
 	"errors"
 	"constants"
@@ -11,6 +12,32 @@ type Board struct {
 	Quadrants [4][3][3]string
 }
 
+type TwoDimensionArrayBoard struct {
+	Board [][]int `json:"board"`
+	CurrentPlayer int `json:"currentPlayer"`
+}
+
+func DeserializeTwoDimensionArrayBoard(arr TwoDimensionArrayBoard) Board {
+	var board Board
+
+	for x, line := range arr.Board {
+		for y, value := range line {
+			switch true {
+			case x < 3 && y < 3:
+				board.Quadrants[0][x][y] = strconv.Itoa(value)
+			case x < 3 && y >= 2:
+				board.Quadrants[1][x][y - 3] = strconv.Itoa(value)
+			case x >= 3 && y < 3:
+				board.Quadrants[2][x - 3][y] = strconv.Itoa(value)
+			case x >= 3 && y >= 3:
+				board.Quadrants[3][x - 3][y - 3] = strconv.Itoa(value)
+			}
+		
+		}
+
+	}
+	return board
+}
 
 func DeserializeBoard(str string) (Board, error) {
 	var board Board

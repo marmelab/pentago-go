@@ -26,13 +26,13 @@ func ApplyMoveOnBoard(board game.Board, move Move, currentPlayer string) game.Bo
 	return board;
 }
 
-func Minimax(depth int, board game.Board, currentPlayer string, move Move, alpha int, beta int) (int, Move) {
+func Minimax(depth int, board game.Board, firstPlayer string, currentPlayer string, move Move, alpha int, beta int) (int, Move) {
 	// Get player1 and player2 binaries representation of their marbles
 	boardStringified := game.ToStringBoard(board)
 	
 	player1Int64, player2Int64, _ := GetPlayerBoardsFromBoard(boardStringified)
 
-	gameStatus, score, _ := EvaluateGameStatus(player1Int64, player2Int64)
+	gameStatus, score, _ := EvaluateGameStatus(player1Int64, player2Int64, firstPlayer)
 
 	if gameStatus != constants.GAME_RUNNING {
 		// fmt.Println(boardStringified, gameStatus, score)
@@ -40,7 +40,7 @@ func Minimax(depth int, board game.Board, currentPlayer string, move Move, alpha
 	}
 
 	if depth == 0 {
-		score := EvaluateScore(player1Int64, player2Int64)
+		score := EvaluateScore(player1Int64, player2Int64, firstPlayer)
 		return score, move
 	}
 
@@ -48,7 +48,7 @@ func Minimax(depth int, board game.Board, currentPlayer string, move Move, alpha
 
 	var bestMove Move
 	var bestScore int
-	if currentPlayer == constants.PLAYER1_VALUE {
+	if currentPlayer == firstPlayer {
 		bestScore = -constants.SCORE_ALIGNED[4]
 	} else {
 		bestScore =  constants.SCORE_ALIGNED[4]
@@ -58,9 +58,9 @@ func Minimax(depth int, board game.Board, currentPlayer string, move Move, alpha
 	for _, move := range moves {
 		newBoard := ApplyMoveOnBoard(board, move, currentPlayer)
 		opponent := SwitchPlayer(currentPlayer)
-		childScore, _ := Minimax(depth - 1, newBoard, opponent, move, alpha, beta)
+		childScore, _ := Minimax(depth - 1, newBoard, firstPlayer, opponent, move, alpha, beta)
 
-		if currentPlayer == constants.PLAYER1_VALUE && bestScore < childScore {
+		if currentPlayer == firstPlayer && bestScore < childScore {
 			bestScore = childScore
 			bestMove = move
 
@@ -68,7 +68,7 @@ func Minimax(depth int, board game.Board, currentPlayer string, move Move, alpha
 			if beta <= alpha  {
 				break
 			}
-		} else if currentPlayer == constants.PLAYER2_VALUE && bestScore > childScore {
+		} else if currentPlayer != firstPlayer && bestScore > childScore {
 			bestScore = childScore
 			bestMove = move
 

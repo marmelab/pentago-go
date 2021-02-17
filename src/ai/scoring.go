@@ -82,7 +82,7 @@ func DetectWinner(player1Int64 int64, player2Int64 int64) (string, error) {
 	return gameResult, nil
 }
 
-func EvaluateGameStatus(player1Int64 int64, player2Int64 int64) (string, int, error) {
+func EvaluateGameStatus(player1Int64 int64, player2Int64 int64, firstPlayer string) (string, int, error) {
 
 	winStatus, err := DetectWinner(player1Int64, player2Int64)
 	if err != nil {
@@ -91,10 +91,12 @@ func EvaluateGameStatus(player1Int64 int64, player2Int64 int64) (string, int, er
 	switch true {
 	case winStatus == constants.GAME_DRAW:
 		return constants.GAME_DRAW, 0, nil
-	case winStatus == constants.GAME_PLAYER1_WON:
+	case winStatus == constants.GAME_PLAYER1_WON && firstPlayer == constants.PLAYER1_VALUE:
+	case winStatus == constants.GAME_PLAYER2_WON && firstPlayer == constants.PLAYER2_VALUE:
 		return constants.GAME_PLAYER1_WON,  constants.SCORE_ALIGNED[4], nil
-	case winStatus == constants.GAME_PLAYER2_WON:
-		return constants.GAME_PLAYER2_WON, - constants.SCORE_ALIGNED[4], nil
+	case winStatus == constants.GAME_PLAYER2_WON && firstPlayer != constants.PLAYER2_VALUE:
+	case winStatus == constants.GAME_PLAYER1_WON && firstPlayer != constants.PLAYER1_VALUE:
+		return constants.GAME_PLAYER2_WON, -constants.SCORE_ALIGNED[4], nil
 	}
 
 	return constants.GAME_RUNNING, 0, nil
@@ -140,14 +142,20 @@ func EvaluateCenters(playerInt64 int64, opponentInt64 int64) int {
 
 }
 
-func EvaluateScore(player1Int64 int64, player2Int64 int64) int {
+func EvaluateScore(player1Int64 int64, player2Int64 int64, firstPlayer string) int {
 
 	score := 0
 
 	var playerInt64, opponentInt64 int64
 
-	playerInt64 = player1Int64
-	opponentInt64 = player2Int64
+	if firstPlayer == constants.PLAYER1_VALUE {
+		playerInt64 = player1Int64
+		opponentInt64 = player2Int64
+	} else {
+		playerInt64 = player2Int64
+		opponentInt64 = player1Int64
+	}
+
 	score = score + EvaluateCenters(playerInt64, opponentInt64)
 	score = score + EvaluateAllCombinationsOfWin(playerInt64, opponentInt64)
 	

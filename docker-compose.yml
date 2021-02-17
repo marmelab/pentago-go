@@ -5,4 +5,6 @@ services:
     build: .
     volumes:
       - ./src:/go/src
-    command: go run ./src/main.go
+    command: go run ./src/main.go &
+    ports:
+      - 8083:8083
