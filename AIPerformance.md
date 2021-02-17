@@ -65,7 +65,7 @@ See below to check with others configuration !
 - Depth 3 = ~1-2s
 ### With Randomize
 
-- Depth 3 = ~2-3s
+- Depth 3 = ~2-4s
 
 ## Close to the end
 
@@ -86,4 +86,3 @@ See below to check with others configuration !
 - Depth 3 = ~650ms
 - Depth 4 = 9s
 - Depth 5 = ~2.30-4min
-

@@ -176,22 +176,18 @@ func main() {
 			placeMarble, _ = game.ConvertQuadrantPositionIntoBoardPosition(move.PlaceMarble)
 			rotate = move.Rotate
 
-			if result.score != constants.SCORE_ALIGNED[4] {
-				fmt.Printf("\nOpponent should play in %d %d and rotate quadrant %v in %v to get the following result : \n",
-					placeMarble[0],
-					placeMarble[1],
-					rotate[0],
-					rotate[1],
-				)
+			fmt.Printf("\nOpponent should play in %d %d and rotate quadrant %v in %v to get the following result : \n",
+				placeMarble[0],
+				placeMarble[1],
+				rotate[0],
+				rotate[1],
+			)
+	
+			opponent := ai.SwitchPlayer(constants.FIRST_PLAYER_VALUE)
+			newBoard = ai.ApplyMoveOnBoard(newBoard, result.opponentMove, opponent)
+	
+			PrintBoard(newBoard)
 		
-				opponent := ai.SwitchPlayer(constants.FIRST_PLAYER_VALUE)
-				newBoard = ai.ApplyMoveOnBoard(newBoard, result.opponentMove, opponent)
-		
-				PrintBoard(newBoard)
-			} else {
-				fmt.Println("And GJ, you win !")
-			}
-			
 		}
 
 	}
