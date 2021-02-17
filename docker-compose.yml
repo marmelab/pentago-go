@@ -8,7 +8,3 @@ services:
     command: go run ./src/main.go &
     ports:
       - 8083:8083
-networks:
-  default:
-    external:
-      name: pentago-symfony_default
