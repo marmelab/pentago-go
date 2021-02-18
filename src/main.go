@@ -3,12 +3,13 @@ package main
 import (
     "log"
 	"fmt"
-	"time"
 	"strings"
+	"strconv"
 	"sync"
 	"sort"
+	"encoding/json"
+	"net/http"
 	"game"
-	"fileReader"
 	"ai"
 	"constants"
 )
@@ -18,7 +19,7 @@ import (
 type Result struct {
 	move ai.Move
 	opponentMove ai.Move
-	score int
+	Score int
 }
 
 func PrintBoardFromFile(board string) {
@@ -60,16 +61,16 @@ func PrintBoard(board game.Board) {
 	fmt.Println("└────────────┘")
 }
 
-func StartFirstNodeMinimax(board game.Board, move ai.Move, ch chan Result, key int, wg *sync.WaitGroup) {
+func StartFirstNodeMinimax(board game.Board, currentPlayer string, move ai.Move, ch chan Result, key int, wg *sync.WaitGroup) {
 	
 	defer wg.Done()
+	newBoard := ai.ApplyMoveOnBoard(board, move, currentPlayer)
+	opponent := ai.SwitchPlayer(currentPlayer)
 
-	newBoard := ai.ApplyMoveOnBoard(board, move, constants.FIRST_PLAYER_VALUE)
-	opponent := ai.SwitchPlayer(constants.FIRST_PLAYER_VALUE)
-    // fmt.Printf("Worker %d starting\n", key)
 	score, opponentMove := ai.Minimax(
 		constants.DEPTH - 1,
 		newBoard,
+		currentPlayer,
 		opponent,
 		move,
 		-constants.SCORE_ALIGNED[4],
@@ -78,50 +79,36 @@ func StartFirstNodeMinimax(board game.Board, move ai.Move, ch chan Result, key i
 	ch <- Result{
 		move: move,
 		opponentMove: opponentMove,
-		score: score,
+		Score: score,
 	}
 }
 
-func EstimateBrowsedNodes(rootTreeLength int, iteration int) int {
-	result := rootTreeLength
-
-	for i := 1; i < iteration; i++ {
-		result = result * (rootTreeLength - i)
-	}
-
-	return result
+type ResultData struct {
+	Score int
+	PlaceMarble [2]int
+	Rotate [2]string
 }
 
-func main() {
+func getBestMoveForPlayer(w http.ResponseWriter, r *http.Request) {
 	var wg sync.WaitGroup
-
-	content, err := fileReader.GetFileContent()
-	PrintBoardFromFile(content)
 	
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	board, err := game.DeserializeBoard(string(content))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-
-	start := time.Now()
-
-	moves := ai.GetAllPossibleMoves(board);
+	arr := game.TwoDimensionArrayBoard{}
+	json.NewDecoder(r.Body).Decode(&arr)
+	currentPlayer := strconv.Itoa(arr.CurrentPlayer)
+	
+	board := game.DeserializeTwoDimensionArrayBoard(arr)
+	// Make communication between main & routines possible
+	ch := make(chan Result)
 	
 	var results []Result
 
-	// Make communication between main & routines possible
-	ch := make(chan Result)
-
 	// The WaitGroup will wait len(moves) routines
-	wg.Add(len(moves))
+	moves := ai.GetAllPossibleMoves(board);
 
+
+	wg.Add(len(moves))
 	for x, move := range moves {
-		go StartFirstNodeMinimax(board, move, ch, x, &wg)
+		go StartFirstNodeMinimax(board, currentPlayer, move, ch, x, &wg)
 	}
 
 	// Compute result sent in the channel
@@ -134,63 +121,29 @@ func main() {
 	// Wait all workers has been closed
 	wg.Wait()
 	close(ch)
-
-	elapsed := time.Since(start)
-
-	numberOfResults := len(results)
-	numberOfNodesToCompute := EstimateBrowsedNodes(numberOfResults, constants.DEPTH)
-	fmt.Printf("Results analyzed : %d, Depth : %d\n", numberOfNodesToCompute, constants.DEPTH)
-	
 	
 	sort.Slice(
 		results,
-		func(i, j int) bool { return results[i].score > results[j].score },
+		func(i, j int) bool { return results[i].Score > results[j].Score },
 	)
-	fmt.Println("\nSuggested moves (sorted by score DESC) :")
+	result := results[0]
+	placeMarble, _ := game.ConvertQuadrantPositionIntoBoardPosition(result.move.PlaceMarble)
 
-	for i:= constants.MAX_RESULTS - 1; i >= 0; i-- {
-		result := results[i]
-
-		fmt.Printf(
-			"\n===> %d : ",
-			result.score,
-		)
-
-		move := result.move
-
-		placeMarble, _ := game.ConvertQuadrantPositionIntoBoardPosition(move.PlaceMarble)
-		rotate := move.Rotate
-
-		fmt.Printf("You should place a marble in %d %d and rotate quadrant %v in %v \n",
-			placeMarble[0],
-			placeMarble[1],
-			rotate[0],
-			rotate[1],
-		)
-
-		if constants.PRINT_MOVES == true {
-			newBoard := ai.ApplyMoveOnBoard(board, move, constants.FIRST_PLAYER_VALUE)
-			PrintBoard(newBoard)
-	
-			move = result.opponentMove
-			placeMarble, _ = game.ConvertQuadrantPositionIntoBoardPosition(move.PlaceMarble)
-			rotate = move.Rotate
-
-			fmt.Printf("\nOpponent should play in %d %d and rotate quadrant %v in %v to get the following result : \n",
-				placeMarble[0],
-				placeMarble[1],
-				rotate[0],
-				rotate[1],
-			)
-	
-			opponent := ai.SwitchPlayer(constants.FIRST_PLAYER_VALUE)
-			newBoard = ai.ApplyMoveOnBoard(newBoard, result.opponentMove, opponent)
-	
-			PrintBoard(newBoard)
-		
-		}
-
+	data := ResultData{
+		Score: result.Score,
+		PlaceMarble: placeMarble,
+		Rotate: result.move.Rotate,
 	}
+	w.Header().Set("Content-type", "application/json;charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(data)
+}
 
-	fmt.Printf("\nFound in %v\n\n", elapsed)
+func main() {
+    http.HandleFunc("/", getBestMoveForPlayer)
+
+    log.Println("Listening on :8083")
+
+    log.Fatal(http.ListenAndServe(":8083", nil))
+
 }

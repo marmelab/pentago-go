@@ -1,0 +1,6 @@
+version: "3.3"
+
+networks:
+  default:
+    external:
+      name: pentago-symfony_default
